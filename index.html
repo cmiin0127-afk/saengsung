@@ -14,8 +14,8 @@
     <header class="topbar">
       <div class="brand-row">
         <div class="brand">진로핏</div>
+        <button class="login-button" type="button" onclick="openLogin()">로그인</button>
       </div>
-      <div class="tagline">내가 생각한 직업과 실제 업무를 비교해 보세요</div>
       <!-- 단계 진행 바 -->
       <div class="step-bar" id="stepBar" hidden>
         <div class="step-dot" id="dot1"></div>
@@ -30,21 +30,22 @@
 
         <!-- 1. 홈 화면 (시작 화면) -->
         <section class="screen active" id="screen-start" aria-label="홈 화면">
-          <div class="kicker">CAREER EXPLORATION</div>
-          <h1>내가 생각한 직업,<br>실제 업무와<br>얼마나 같을까요?</h1>
-          <p class="lead">희망 직업에서 할 것으로 예상하는 업무와 필요한 역량을 입력해 보세요. 공개 직업정보와 비교해 일치하는 부분과 더 알아볼 내용을 확인할 수 있어요.</p>
+          <div class="home-heading-row">
+            <h1>내가 생각한 직업,<br>실제 업무와<br>얼마나 같을까요?</h1>
+          </div>
+          <button class="home-career-button" type="button" onclick="navigateToStep('career')">
+            직업 비교하러 가기 <span aria-hidden="true">→</span>
+          </button>
           
           <div class="overview">
             <div class="overview-title">간단한 3단계로 확인해요</div>
             <div class="flow">
-              <div class="flow-row"><div class="flow-num">01</div><div><div class="flow-text">희망 직업 입력</div><div class="flow-desc">비교하고 싶은 희망 직업을 입력해요.</div></div></div>
-              <div class="flow-row"><div class="flow-num">02</div><div><div class="flow-text">예상 업무 및 역량 입력</div><div class="flow-desc">내가 생각하는 주요 업무와 필요 역량을 작성해요.</div></div></div>
-              <div class="flow-row"><div class="flow-num">03</div><div><div class="flow-text">실제 정보와 비교 확인</div><div class="flow-desc">일치, 차이, 추가 확인 항목을 살펴봐요.</div></div></div>
+              <div class="flow-row"><div class="flow-num">01</div><div><div class="flow-text">희망 직업 입력</div></div></div>
+              <div class="flow-row"><div class="flow-num">02</div><div><div class="flow-text">예상 업무 및 역량 입력</div></div></div>
+              <div class="flow-row"><div class="flow-num">03</div><div><div class="flow-text">실제 정보와 비교 확인</div></div></div>
             </div>
           </div>
           
-          <div class="notice">이 서비스는 직업을 추천하거나 적합도를 판단하지 않아요. 희망 직업의 실제 업무를 이해하고 더 알아볼 내용을 찾도록 도와줘요.</div>
-          <button class="primary" type="button" onclick="navigateToStep('career')">비교 시작하기 <span aria-hidden="true">→</span></button>
         </section>
 
         <!-- 2. 희망 직업 입력 단계 화면 -->
@@ -52,12 +53,10 @@
           <div class="form-intro">
             <div class="kicker">STEP 01 / 03</div>
             <h2>희망하는 직업명을<br>입력해 주세요</h2>
-            <p class="lead">비교하고 싶거나 진로로 고민 중인 직업명을 입력하세요.</p>
           </div>
           <div class="field">
             <label for="career">희망 직업명 <span class="required">필수</span></label>
             <input id="career" name="career" type="text" placeholder="예: 마케팅 기획자" autocomplete="off" value="마케팅 기획자">
-            <div class="helper">💡 팁: '마케팅 기획자'를 입력하시면 정밀 비교 예시 데이터를 확인하실 수 있습니다.</div>
           </div>
           <div class="form-error" id="errorCareer" role="alert">희망 직업명을 입력해 주세요.</div>
           <div class="form-actions">
@@ -71,13 +70,11 @@
           <div class="form-intro">
             <div class="kicker">STEP 02 / 03</div>
             <h2>예상하는 주요 업무를<br>적어주세요</h2>
-            <p class="lead">해당 직업에서 실제로 어떤 일을 주로 할 것 같은지 생생하게 적어주세요.</p>
           </div>
           <div class="field">
             <label for="tasks">예상 주요 업무 <span class="required">필수</span></label>
             <textarea id="tasks" name="tasks" placeholder="예: 광고 콘텐츠를 기획한다.&#10;고객이 무엇을 원하는지 조사한다.&#10;SNS 채널을 운영하고 홍보한다.">광고 콘텐츠를 기획하고 홍보한다.
 고객이 무엇을 원하는지 조사한다.</textarea>
-            <div class="helper">생각나는 대로 구체적인 문장이나 항목으로 적어주세요.</div>
           </div>
           <div class="form-error" id="errorTasks" role="alert">예상 주요 업무를 입력해 주세요.</div>
           <div class="form-actions">
@@ -91,12 +88,10 @@
           <div class="form-intro">
             <div class="kicker">STEP 03 / 03</div>
             <h2>필요하다고 생각하는<br>역량을 작성해 주세요</h2>
-            <p class="lead">그 일을 잘해내기 위해 어떤 지식이나 기술, 성향이 필요할까요?</p>
           </div>
           <div class="field">
             <label for="skills">예상 필요 역량 <span class="required">필수</span></label>
             <textarea id="skills" name="skills" placeholder="예: 의사소통 능력&#10;창의적인 기획 능력&#10;SNS 콘텐츠 제작 능력">의사소통 능력, SNS 콘텐츠 제작 능력</textarea>
-            <div class="helper">필요한 스킬이나 자격증, 성격적 특성을 적어주세요.</div>
           </div>
           <div class="form-error" id="errorSkills" role="alert">예상 필요 역량을 입력해 주세요.</div>
           <div class="form-actions">
@@ -105,7 +100,33 @@
           </div>
         </section>
 
-        <!-- 5. 비교 결과 화면 -->
+        <!-- 5. 마이페이지 화면 -->
+        <section class="screen" id="screen-mypage" aria-label="마이페이지">
+          <div class="form-intro">
+            <div class="kicker">MY PAGE</div>
+            <h2>마이페이지</h2>
+          </div>
+
+          <div class="mypage-profile">
+            <div class="mypage-avatar" aria-hidden="true">M</div>
+            <div>
+              <strong id="mypageUserName">나의 진로핏</strong>
+              <p id="mypageLoginState">로그인 없이 이용 중</p>
+            </div>
+          </div>
+
+          <div class="mypage-section-title">내가 비교한 직업 <span id="historyCount">0</span></div>
+          <div id="comparisonHistory" class="mypage-list">
+            <div class="mypage-empty">아직 비교한 직업이 없어요.<br>희망 직업을 입력하고 비교해 보세요.</div>
+          </div>
+
+          <div class="mypage-section-title">좋아요한 직업 <span id="favoriteCount">0</span></div>
+          <div id="favoriteJobs" class="mypage-list">
+            <div class="mypage-empty">아직 좋아요한 직업이 없어요.<br>비교 결과에서 하트 버튼을 눌러 저장해 보세요.</div>
+          </div>
+        </section>
+
+        <!-- 6. 비교 결과 화면 -->
         <section class="screen" id="screen-result" aria-label="비교 결과 화면">
           <div class="result-head">
             <div class="result-title-row">
@@ -113,8 +134,11 @@
               <span class="example-badge"><i class="example-dot"></i>분석 완료</span>
             </div>
             <h2>직업 비교 결과</h2>
-            <div class="career-name" id="resultCareer">마케팅 기획자</div>
-            <p class="result-caption" id="resultCaption">내가 예상한 내용과 실제 직업정보를 비교 분석한 결과입니다.</p>
+            <div class="result-career-line">
+              <div class="career-name" id="resultCareer">마케팅 기획자</div>
+              <button class="favorite-button" id="favoriteButton" type="button" onclick="toggleFavorite()" aria-pressed="false">♡ 좋아요</button>
+            </div>
+            <p class="result-caption" id="resultCaption"></p>
           </div>
 
           <!-- 매칭된 데이터 결과 (마케팅 기획자) -->
@@ -205,7 +229,6 @@
         </section>
 
       </main>
-      <footer class="footer">진로핏 · 비교 결과는 실제 직업 정보 데이터를 바탕으로 참고해 주세요.</footer>
     </div>
 
     <!-- 2. 하단 5개 탭 바 -->
@@ -225,9 +248,27 @@
       <button class="tab-button" type="button" id="tab-result" onclick="navigateToStep('result')">
         <span class="tab-icon" aria-hidden="true">▤</span><span>비교 결과</span>
       </button>
+      <button class="tab-button" type="button" id="tab-mypage" onclick="navigateToStep('mypage')">
+        <span class="tab-icon" aria-hidden="true">♙</span><span>MY</span>
+      </button>
     </nav>
   </div>
 </div>
+
+  <div class="login-modal" id="loginModal" hidden role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+    <div class="login-panel">
+      <button class="login-close" type="button" onclick="closeLogin()" aria-label="닫기">×</button>
+      <div class="kicker">WELCOME</div>
+      <h2 id="loginTitle">로그인</h2>
+      <p>로그인 화면 디자인 미리보기입니다.</p>
+      <label for="loginEmail">이메일</label>
+      <input id="loginEmail" type="email" placeholder="example@email.com" autocomplete="email">
+      <label for="loginPassword">비밀번호</label>
+      <input id="loginPassword" type="password" placeholder="비밀번호 입력" autocomplete="current-password">
+      <button class="primary" type="button" onclick="showLoginNotice()">로그인</button>
+      <p class="login-disclaimer" id="loginNotice">현재 프로토타입에는 실제 회원 인증 기능이 연결되어 있지 않습니다.</p>
+    </div>
+  </div>
 
 <script src="js/main.js"></script>
 </body>
