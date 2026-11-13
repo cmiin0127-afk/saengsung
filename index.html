@@ -32,11 +32,9 @@
         <section class="screen active" id="screen-start" aria-label="홈 화면">
           <div class="home-heading-row">
             <h1>내가 생각한 직업,<br>실제 업무와<br>얼마나 같을까요?</h1>
+            <button class="home-recommend-button" type="button" onclick="recommendJob()">직업 추천받기 <span aria-hidden="true">→</span></button>
           </div>
-          <button class="home-career-button" type="button" onclick="navigateToStep('career')">
-            직업 비교하러 가기 <span aria-hidden="true">→</span>
-          </button>
-          
+
           <div class="overview">
             <div class="overview-title">간단한 3단계로 확인해요</div>
             <div class="flow">
@@ -45,7 +43,10 @@
               <div class="flow-row"><div class="flow-num">03</div><div><div class="flow-text">실제 정보와 비교 확인</div></div></div>
             </div>
           </div>
-          
+
+          <button class="home-career-button" type="button" onclick="navigateToStep('career')">
+            직업 비교하러 가기 <span aria-hidden="true">→</span>
+          </button>
         </section>
 
         <!-- 2. 희망 직업 입력 단계 화면 -->
@@ -56,7 +57,10 @@
           </div>
           <div class="field">
             <label for="career">희망 직업명 <span class="required">필수</span></label>
-            <input id="career" name="career" type="text" placeholder="예: 마케팅 기획자" autocomplete="off" value="마케팅 기획자">
+            <div class="combo">
+              <input id="career" name="career" type="text" placeholder="예: 인공지능(AI) 콘텐츠 크리에이터" autocomplete="off" value="인공지능(AI) 콘텐츠 크리에이터" role="combobox" aria-expanded="false" aria-controls="jobSuggest" aria-autocomplete="list">
+              <div class="job-suggest" id="jobSuggest" role="listbox" aria-label="신직업 목록" hidden></div>
+            </div>
           </div>
           <div class="form-error" id="errorCareer" role="alert">희망 직업명을 입력해 주세요.</div>
           <div class="form-actions">
@@ -73,8 +77,8 @@
           </div>
           <div class="field">
             <label for="tasks">예상 주요 업무 <span class="required">필수</span></label>
-            <textarea id="tasks" name="tasks" placeholder="예: 광고 콘텐츠를 기획한다.&#10;고객이 무엇을 원하는지 조사한다.&#10;SNS 채널을 운영하고 홍보한다.">광고 콘텐츠를 기획하고 홍보한다.
-고객이 무엇을 원하는지 조사한다.</textarea>
+            <textarea id="tasks" name="tasks" placeholder="예: AI로 음악이나 영상 콘텐츠를 만든다.&#10;만든 결과물의 품질을 검토한다.&#10;콘텐츠 운영 방향을 기획한다.">AI로 음악이나 영상 같은 콘텐츠를 만든다.
+만든 콘텐츠를 검토하고 수정한다.</textarea>
           </div>
           <div class="form-error" id="errorTasks" role="alert">예상 주요 업무를 입력해 주세요.</div>
           <div class="form-actions">
@@ -91,7 +95,7 @@
           </div>
           <div class="field">
             <label for="skills">예상 필요 역량 <span class="required">필수</span></label>
-            <textarea id="skills" name="skills" placeholder="예: 의사소통 능력&#10;창의적인 기획 능력&#10;SNS 콘텐츠 제작 능력">의사소통 능력, SNS 콘텐츠 제작 능력</textarea>
+            <textarea id="skills" name="skills" placeholder="예: 생성형 AI 활용 능력&#10;창의적인 기획 능력&#10;영상 편집 능력">생성형 AI 도구 활용 능력, 콘텐츠 기획력</textarea>
           </div>
           <div class="form-error" id="errorSkills" role="alert">예상 필요 역량을 입력해 주세요.</div>
           <div class="form-actions">
@@ -135,14 +139,14 @@
             </div>
             <h2>직업 비교 결과</h2>
             <div class="result-career-line">
-              <div class="career-name" id="resultCareer">마케팅 기획자</div>
+              <div class="career-name" id="resultCareer"></div>
               <button class="favorite-button" id="favoriteButton" type="button" onclick="toggleFavorite()" aria-pressed="false">♡ 좋아요</button>
             </div>
             <p class="result-caption" id="resultCaption"></p>
           </div>
 
-          <!-- 매칭된 데이터 결과 (마케팅 기획자) -->
-          <div id="matchedResult">
+          <!-- 비교 결과 (data/*.json 데이터로 채워짐) -->
+          <div id="matchedResult" hidden>
             <div class="section-heading"><strong>내가 입력한 정보 요약</strong><span>입력 내역</span></div>
             <div class="user-summary">
               <div class="summary-label">예상 주요 업무</div>
@@ -153,73 +157,90 @@
               <div class="summary-text" id="outSkills"></div>
             </div>
 
-            <div class="section-heading"><strong>예상 내용과 실제 직업정보 비교</strong><span>직업 DB 비교</span></div>
-            
+            <div class="section-heading"><strong>예상 내용과 실제 직업정보 비교</strong><span>직무개요 키워드 비교</span></div>
+
             <article class="result-card">
               <div class="result-card-top">
-                <strong>주요 업무 · 고객 및 시장 조사</strong>
-                <span class="status match">일치</span>
+                <strong>주요 업무 · 직무 개요</strong>
+                <span class="status" id="cardTaskStatus"></span>
               </div>
               <div class="compare-row">
                 <div class="compare-label">예상 업무 내용</div>
-                <div class="compare-copy" id="userTaskMatch">고객이 무엇을 원하는지 조사한다.</div>
+                <div class="compare-copy" id="cardTaskUser"></div>
               </div>
               <div class="compare-row">
                 <div class="compare-label">실제 직업정보 표준</div>
-                <div class="compare-copy">시장 동향과 고객 트렌드를 조사 분석하여 전략을 수립함.</div>
+                <div class="compare-copy" id="cardTaskActual"></div>
               </div>
-              <div class="source">출처: 마케팅 기획자 직업 표준 DB</div>
+              <div class="compare-row">
+                <div class="compare-label">겹치는 키워드</div>
+                <div class="compare-copy" id="cardTaskKeywords"></div>
+              </div>
+              <div class="source"></div>
             </article>
 
             <article class="result-card">
               <div class="result-card-top">
-                <strong>주요 업무 · 성과 측정 및 분석</strong>
-                <span class="status diff">차이</span>
-              </div>
-              <div class="compare-row">
-                <div class="compare-label">예상 업무 내용</div>
-                <div class="compare-copy" id="userTaskDiff">광고 콘텐츠를 기획하고 홍보한다.</div>
-              </div>
-              <div class="compare-row">
-                <div class="compare-label">실제 직업정보 표준</div>
-                <div class="compare-copy">마케팅 실행 후 데이터 기반 캠페인 성과 측정 및 ROI 분석.</div>
-              </div>
-              <div class="source">출처: 마케팅 기획자 직업 표준 DB</div>
-            </article>
-
-            <article class="result-card">
-              <div class="result-card-top">
-                <strong>필요 역량 · 디지털 채널 운용</strong>
-                <span class="status check">추가 확인 필요</span>
+                <strong>필요 역량 · 직무 개요</strong>
+                <span class="status" id="cardSkillStatus"></span>
               </div>
               <div class="compare-row">
                 <div class="compare-label">예상 역량 내용</div>
-                <div class="compare-copy" id="userSkillCheck">SNS 콘텐츠 제작 능력</div>
+                <div class="compare-copy" id="cardSkillUser"></div>
               </div>
               <div class="compare-row">
                 <div class="compare-label">실제 직업정보 표준</div>
-                <div class="compare-copy">채널 운용 스킬 외에도 퍼포먼스 데이터 도구 활용 역량이 크게 구별될 수 있음.</div>
+                <div class="compare-copy" id="cardSkillActual"></div>
               </div>
-              <div class="source">출처: 마케팅 기획자 직업 표준 DB</div>
+              <div class="compare-row">
+                <div class="compare-label">겹치는 키워드</div>
+                <div class="compare-copy" id="cardSkillKeywords"></div>
+              </div>
+              <div class="source"></div>
+            </article>
+
+            <article class="result-card">
+              <div class="result-card-top">
+                <strong id="cardClassTitle">직업 분류</strong>
+                <span class="status" id="cardClassStatus"></span>
+              </div>
+              <div class="compare-row">
+                <div class="compare-label">입력한 직업명</div>
+                <div class="compare-copy" id="cardClassUser"></div>
+              </div>
+              <div class="compare-row">
+                <div class="compare-label">실제 직업정보 표준</div>
+                <div class="compare-copy" id="cardClassActual"></div>
+              </div>
+              <div class="source"></div>
             </article>
 
             <div class="ai-box">
               <div class="ai-label">AI 비교 분석 리포트</div>
               <h3>핵심 인사이트 요약</h3>
-              <p>기획 및 홍보에 대한 이해도가 높습니다! 다만 실제 필드에서는 콘텐츠 제작 외에 <strong>데이터 분석 및 캠페인 성과 측정</strong> 업무 비중이 높으므로 관련 지식을 함께 탐색해 보세요.</p>
+              <p id="resultReport"></p>
+              <div class="trend-box" id="trendBox" hidden>
+                <div class="trend-label">2025 신직업의 공통 특징</div>
+                <ul class="trend-list" id="trendList"></ul>
+              </div>
             </div>
 
             <div class="question-box">
               <h3>💡 추가 탐색을 위한 질문</h3>
-              <p>희망하는 기업의 마케팅 팀에서는 콘텐츠 기획자와 데이터 분석가의 역할이 어떻게 구분되어 있나요?</p>
+              <p id="resultQuestion"></p>
+              <div class="related-jobs" id="relatedJobs" hidden>
+                <div class="related-label" id="relatedLabel"></div>
+                <div class="related-list" id="relatedList"></div>
+              </div>
             </div>
           </div>
 
-          <!-- 미매칭 결과 (기타 직업 입력 시) -->
+          <!-- 미매칭 / 결과 없음 -->
           <div id="missingResult" hidden>
-            <div class="overview" style="margin-top:16px; text-align:center;">
-              <h3 style="margin-bottom:8px;">실제 직업정보를 찾을 수 없어요</h3>
-              <p style="font-size:11px; color:#686b65; margin:0;">입력하신 직업은 아직 예시 DB에 연결되어 있지 않습니다. 예시 데이터가 등록된 <strong>'마케팅 기획자'</strong>로 다시 시도해 보세요.</p>
+            <div class="overview missing-card">
+              <h3 id="missingTitle"></h3>
+              <p id="missingText"></p>
+              <div class="missing-suggest" id="missingSuggest"></div>
             </div>
           </div>
 
