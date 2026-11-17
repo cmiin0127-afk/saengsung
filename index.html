@@ -282,15 +282,102 @@
       <div class="kicker">WELCOME</div>
       <h2 id="loginTitle">로그인</h2>
       <p>로그인 화면 디자인 미리보기입니다.</p>
+      <div id="loginNameGroup" hidden>
+        <label for="joinName">이름</label>
+        <input id="joinName" type="text" placeholder="이름을 입력해 주세요" autocomplete="name">
+      </div>
       <label for="loginEmail">이메일</label>
       <input id="loginEmail" type="email" placeholder="example@email.com" autocomplete="email">
-      <label for="loginPassword">비밀번호</label>
-      <input id="loginPassword" type="password" placeholder="비밀번호 입력" autocomplete="current-password">
-      <button class="primary" type="button" onclick="showLoginNotice()">로그인</button>
-      <p class="login-disclaimer" id="loginNotice">현재 프로토타입에는 실제 회원 인증 기능이 연결되어 있지 않습니다.</p>
+      <div id="loginPasswordGroup">
+        <label for="loginPassword">비밀번호</label>
+        <input id="loginPassword" type="password" placeholder="비밀번호 입력" autocomplete="current-password">
+      </div>
+      <button class="primary" id="loginSubmitButton" type="button" onclick="showLoginNotice()">로그인</button>
+      <button class="secondary" id="switchAuthMode" type="button" onclick="toggleAuthMode()" style="width:100%; margin-top:10px;">회원가입</button>
+      <p class="login-disclaimer" id="loginNotice">로그인은 현재 프로토타입에서 지원하지 않습니다. 회원가입을 통해 이름과 이메일을 저장할 수 있습니다.</p>
     </div>
   </div>
 
 <script src="js/main.js"></script>
+<script>
+  // Google Apps Script 웹 앱 배포 URL
+  const GOOGLE_SHEETS_WEB_APP_URL =
+    'https://script.google.com/macros/s/AKfycbw2ZB39-1myZiuPwpe0LP5oGO4lvbSiJCLjZiUMvLADkcYgWStRHUOPzvMDxiAU1tqJTA/exec';
+
+  let authMode = 'login';
+
+  function toggleAuthMode() {
+    authMode = authMode === 'login' ? 'join' : 'login';
+
+    const isJoin = authMode === 'join';
+    document.getElementById('loginTitle').textContent = isJoin ? '회원가입' : '로그인';
+    document.getElementById('loginNameGroup').hidden = !isJoin;
+    document.getElementById('loginPasswordGroup').hidden = isJoin;
+    document.getElementById('loginSubmitButton').textContent = isJoin ? '회원가입하기' : '로그인';
+    document.getElementById('switchAuthMode').textContent = isJoin ? '로그인으로 돌아가기' : '회원가입';
+    document.getElementById('loginNotice').textContent = isJoin
+      ? '이름과 이메일을 구글 시트에 저장합니다. 비밀번호는 수집하거나 저장하지 않습니다.'
+      : '현재 프로토타입에는 실제 로그인 인증 기능이 연결되어 있지 않습니다.';
+  }
+
+  // 실제 로그인 인증 서버는 아직 연결되지 않았으므로 로그인은 안내만 표시
+  function showLoginNotice() {
+    if (authMode !== 'join') {
+      document.getElementById('loginNotice').textContent =
+        '실제 로그인 인증은 아직 연결되어 있지 않습니다. 회원가입은 이용할 수 있습니다.';
+      return;
+    }
+    submitJoinForm();
+  }
+
+  async function submitJoinForm() {
+    const nameInput = document.getElementById('joinName');
+    const emailInput = document.getElementById('loginEmail');
+    const notice = document.getElementById('loginNotice');
+    const submitButton = document.getElementById('loginSubmitButton');
+
+    const name = nameInput.value.trim();
+    const email = emailInput.value.trim().toLowerCase();
+
+    if (!name) {
+      notice.textContent = '이름을 입력해 주세요.';
+      nameInput.focus();
+      return;
+    }
+
+    if (!email || !emailInput.checkValidity()) {
+      notice.textContent = '올바른 이메일 주소를 입력해 주세요.';
+      emailInput.focus();
+      return;
+    }
+
+    submitButton.disabled = true;
+    submitButton.textContent = '전송 중...';
+    notice.textContent = '회원 정보를 전송하고 있습니다.';
+
+    try {
+      // text/plain으로 JSON 본문을 전달해 CORS 사전 요청을 피합니다.
+      // no-cors 모드에서는 Apps Script의 응답 내용을 브라우저에서 읽을 수 없습니다.
+      await fetch(GOOGLE_SHEETS_WEB_APP_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ name: name, email: email })
+      });
+
+      notice.textContent =
+        '가입 요청을 전송했습니다. 구글 시트의 join 탭에서 저장 여부를 확인해 주세요.';
+      nameInput.value = '';
+      emailInput.value = '';
+    } catch (error) {
+      console.error('Google Sheets 전송 오류:', error);
+      notice.textContent =
+        '전송에 실패했습니다. 인터넷 연결과 Apps Script 웹 앱 배포 설정을 확인해 주세요.';
+    } finally {
+      submitButton.disabled = false;
+      submitButton.textContent = '회원가입하기';
+    }
+  }
+</script>
 </body>
 </html>
