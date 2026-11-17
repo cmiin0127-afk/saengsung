@@ -20,7 +20,7 @@
       <div class="step-bar" id="stepBar" hidden>
         <div class="step-dot" id="dot1"></div>
         <div class="step-dot" id="dot2"></div>
-        <div class="step-dot" id="dot3"></div>
+        
       </div>
     </header>
 
@@ -39,7 +39,7 @@
             <div class="overview-title">간단한 3단계로 확인해요</div>
             <div class="flow">
               <div class="flow-row"><div class="flow-num">01</div><div><div class="flow-text">희망 직업 입력</div></div></div>
-              <div class="flow-row"><div class="flow-num">02</div><div><div class="flow-text">예상 업무 및 역량 입력</div></div></div>
+              <div class="flow-row"><div class="flow-num">02</div><div><div class="flow-text">예상 업무 및 필요 역량 입력</div></div></div>
               <div class="flow-row"><div class="flow-num">03</div><div><div class="flow-text">실제 정보와 비교 확인</div></div></div>
             </div>
           </div>
@@ -69,11 +69,11 @@
           </div>
         </section>
 
-        <!-- 3. 예상 업무 입력 단계 화면 -->
-        <section class="screen" id="screen-tasks" aria-label="예상 업무 입력">
+        <!-- 3. 예상 업무 및 필요 역량 통합 입력 화면 -->
+        <section class="screen" id="screen-tasks" aria-label="예상 업무 및 필요 역량 입력">
           <div class="form-intro">
-            <div class="kicker">STEP 02 / 03</div>
-            <h2>예상하는 주요 업무를<br>적어주세요</h2>
+            <div class="kicker">STEP 02 / 02</div>
+            <h2>예상 업무와 필요 역량을<br>작성해 주세요</h2>
           </div>
           <div class="field">
             <label for="tasks">예상 주요 업무 <span class="required">필수</span></label>
@@ -81,30 +81,18 @@
 만든 콘텐츠를 검토하고 수정한다.</textarea>
           </div>
           <div class="form-error" id="errorTasks" role="alert">예상 주요 업무를 입력해 주세요.</div>
-          <div class="form-actions">
-            <button class="secondary" type="button" onclick="navigateToStep('career')">이전</button>
-            <button class="primary" type="button" onclick="navigateToStep('skills')">다음 단계 <span aria-hidden="true">→</span></button>
-          </div>
-        </section>
-
-        <!-- 4. 필요 역량 입력 단계 화면 -->
-        <section class="screen" id="screen-skills" aria-label="필요 역량 입력">
-          <div class="form-intro">
-            <div class="kicker">STEP 03 / 03</div>
-            <h2>필요하다고 생각하는<br>역량을 작성해 주세요</h2>
-          </div>
           <div class="field">
             <label for="skills">예상 필요 역량 <span class="required">필수</span></label>
             <textarea id="skills" name="skills" placeholder="예: 생성형 AI 활용 능력&#10;창의적인 기획 능력&#10;영상 편집 능력">생성형 AI 도구 활용 능력, 콘텐츠 기획력</textarea>
           </div>
           <div class="form-error" id="errorSkills" role="alert">예상 필요 역량을 입력해 주세요.</div>
           <div class="form-actions">
-            <button class="secondary" type="button" onclick="navigateToStep('tasks')">이전</button>
+            <button class="secondary" type="button" onclick="navigateToStep('career')">이전</button>
             <button class="primary" type="button" onclick="processComparison()">비교 결과 확인 <span aria-hidden="true">→</span></button>
           </div>
         </section>
 
-        <!-- 5. 마이페이지 화면 -->
+                <!-- 5. 마이페이지 화면 -->
         <section class="screen" id="screen-mypage" aria-label="마이페이지">
           <div class="form-intro">
             <div class="kicker">MY PAGE</div>
@@ -263,9 +251,6 @@
       <button class="tab-button" type="button" id="tab-tasks" onclick="navigateToStep('tasks')">
         <span class="tab-icon" aria-hidden="true">☷</span><span>예상 업무</span>
       </button>
-      <button class="tab-button" type="button" id="tab-skills" onclick="navigateToStep('skills')">
-        <span class="tab-icon" aria-hidden="true">◇</span><span>필요 역량</span>
-      </button>
       <button class="tab-button" type="button" id="tab-result" onclick="navigateToStep('result')">
         <span class="tab-icon" aria-hidden="true">▤</span><span>비교 결과</span>
       </button>
@@ -302,7 +287,7 @@
 <script>
   // Google Apps Script 웹 앱 배포 URL
   const GOOGLE_SHEETS_WEB_APP_URL =
-    'https://script.google.com/macros/s/AKfycbw2ZB39-1myZiuPwpe0LP5oGO4lvbSiJCLjZiUMvLADkcYgWStRHUOPzvMDxiAU1tqJTA/exec';
+    'https://script.google.com/macros/s/AKfycbxlx9Oo0RUDcLzJpIKRIFmsFTURaP6qo5-GARLhtejIAERHInLdtQO1EFfRcduHTn1N-Q/exec';
 
   let authMode = 'login';
 

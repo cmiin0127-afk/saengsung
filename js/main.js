@@ -3,16 +3,22 @@ let isResultAvailable = false;
 
 // 스텝 변경 및 화면 조작 인터랙션
 function navigateToStep(stepId) {
-  // 입력 화면 단계를 거칠 때 유효성 체크
-  if (activeStep === 'career' && ['tasks', 'skills', 'result'].includes(stepId)) {
+  // 희망 직업을 입력한 뒤에는 통합 입력 화면으로 이동
+  if (activeStep === 'career' && ['tasks', 'result'].includes(stepId)) {
     if (!document.getElementById('career').value.trim()) {
       showError('errorCareer');
       return;
     }
   }
-  if (activeStep === 'tasks' && ['skills', 'result'].includes(stepId)) {
+
+  // 통합 입력 화면에서 비교 결과로 이동할 때 업무와 역량 모두 확인
+  if (activeStep === 'tasks' && stepId === 'result') {
     if (!document.getElementById('tasks').value.trim()) {
       showError('errorTasks');
+      return;
+    }
+    if (!document.getElementById('skills').value.trim()) {
+      showError('errorSkills');
       return;
     }
   }
@@ -26,13 +32,12 @@ function navigateToStep(stepId) {
   const targetScreen = document.getElementById(`screen-${stepId}`);
   if (targetScreen) targetScreen.classList.add('active');
 
-  // 스텝바 제어 (홈 및 결과 제외)
+  // 입력 단계 진행 표시: 희망 직업 / 업무·역량 통합 입력
   const stepBar = document.getElementById('stepBar');
-  if (['career', 'tasks', 'skills'].includes(stepId)) {
+  if (['career', 'tasks'].includes(stepId)) {
     stepBar.hidden = false;
     document.getElementById('dot1').classList.toggle('active', true);
-    document.getElementById('dot2').classList.toggle('active', ['tasks', 'skills'].includes(stepId));
-    document.getElementById('dot3').classList.toggle('active', stepId === 'skills');
+    document.getElementById('dot2').classList.toggle('active', stepId === 'tasks');
   } else {
     stepBar.hidden = true;
   }
@@ -489,6 +494,10 @@ async function processComparison() {
   const tasks = document.getElementById('tasks').value.trim();
   const skills = document.getElementById('skills').value.trim();
 
+  if (!tasks) {
+    showError('errorTasks');
+    return;
+  }
   if (!skills) {
     showError('errorSkills');
     return;
