@@ -147,18 +147,33 @@ const KNOW_GROUP_DESC = {
   '8-5': { label: '기계 설치·정비·생산직', task: '산업용 기계 및 장비를 제작·조립·설치하고 정기 점검과 정비를 통해 가동 상태를 유지합니다.', skill: '기계 구조 이해, 도면 판독, 정밀 가공 및 정비 기술, 안전 관리 역량이 요구됩니다.' },
   '8-6': { label: '금속·재료 설치·정비·생산직', task: '금속 및 비금속 재료를 가공·용접·성형하여 구조물과 부품을 생산·정비합니다.', skill: '재료 특성 이해, 가공·용접 장비 운용, 정밀 측정, 현장 안전 역량이 요구됩니다.' },
   '8-7': { label: '건설·채굴직', task: '건물과 토목 현장에서 기초 공사, 골조, 마감, 설비 시공 등 건설 작업을 수행합니다.', skill: '시공 기술, 설계 도면 이해, 현장 협업, 산업 안전 수칙 준수 역량이 요구됩니다.' },
+  '5-1': { label: '이용·미용·예식·장례 서비스직', task: '고객의 외모·위생 관리, 예식 및 장례 진행 등 개인 맞춤형 생활 서비스를 제공합니다.', skill: '섬세한 손기술, 고객 응대 및 상담, 위생·안전 관리, 심미적 감각이 요구됩니다.' },
+  '5-2': { label: '여행·숙박·오락 서비스직', task: '여행 상품 기획, 안내, 객실·숙박·오락 시설 운영 등 이용객이 편안하고 안전하게 즐기도록 서비스를 제공합니다.', skill: '고객 응대, 외국어 및 정보 안내, 안전 관리, 상황 대처 역량이 요구됩니다.' },
+  '5-3': { label: '음식 서비스직', task: '음식·음료를 조리하거나 주문·서빙·배달하며 주방과 홀의 위생과 운영을 관리합니다.', skill: '조리 기술, 식품 위생 관리, 협업, 시간 관리 및 고객 응대 역량이 요구됩니다.' },
+  '5-6': { label: '청소·방역·생활지원 서비스직', task: '시설과 주거 공간의 청소, 방역, 세탁, 점검 및 관리를 통해 쾌적하고 안전한 환경을 유지합니다.', skill: '성실성, 위생·안전 수칙 준수, 장비 및 도구 활용, 꼼꼼한 점검 역량이 요구됩니다.' },
+  '6-2': { label: '운전·운항·운송·관제직', task: '항공기, 선박, 열차, 차량 및 중장비를 운행하거나 교통을 관제해 사람과 화물을 안전하게 수송합니다.', skill: '안전 운행 능력, 상황 판단력, 장비 점검, 규정 준수 및 집중력이 요구됩니다.' },
+  '9-0': { label: '농림어업직', task: '작물 재배, 가축 사육, 산림 및 수산 자원 관리 등 농림어업 생산 활동을 수행합니다.', skill: '생육·사육 환경 이해, 기계 및 도구 활용, 체력, 계절·기상 변화 대응 역량이 요구됩니다.' },
   '8-8': { label: '제조 단순직 및 기타 생산직', task: '생산 라인에서 부품 조립, 제품 선별, 포장, 적재 등 제조 지원 및 품질 확인 업무를 수행합니다.', skill: '작업 표준 준수, 집중력, 협업 태도, 현장 안전 관리 역량이 요구됩니다.' }
 };
 
+// 일반 직업(세세분류)의 '주요 업무' 설명: 첨부한 JSON의 직무설명을 우선 사용
 function buildGeneralJobOverview(item) {
+  if (item.duty) return item.duty;
   const groupKey = `${item.major}-${item.middle}`;
   const groupInfo = KNOW_GROUP_DESC[groupKey];
   const category = categoryOfOccupation(item);
   const fieldPrefix = category ? `[${category} 분야] ` : '';
   if (groupInfo) {
-    return `${fieldPrefix}'${item.name}'(${groupInfo.label} 직군)은(는) ${groupInfo.task} 또한 ${groupInfo.skill}`;
+    return `${fieldPrefix}'${item.name}'(${groupInfo.label} 직군)은(는) ${groupInfo.task}`;
   }
-  return `${fieldPrefix}'${item.name}'은(는) 해당 전문 분야의 실무 절차를 계획·수행하고 결과물의 품질과 안전을 관리하는 직업입니다. 관련 직무 지식, 문제 해결 능력, 협업 및 의사소통 역량이 요구됩니다.`;
+  return `${fieldPrefix}'${item.name}'은(는) 해당 전문 분야의 실무 절차를 계획·수행하고 결과물의 품질과 안전을 관리하는 직업입니다.`;
+}
+
+// 일반 직업(세세분류)의 '필요 역량' 설명: 직군(KNOW 대·중분류)별 표준 역량 설명
+function buildGeneralJobSkill(item) {
+  const groupInfo = KNOW_GROUP_DESC[`${item.major}-${item.middle}`];
+  const base = groupInfo ? groupInfo.skill : '관련 직무 지식, 문제 해결 능력, 협업 및 의사소통 역량이 요구됩니다.';
+  return `'${item.name}'${josa(item.name, '은', '는')} ${groupInfo ? `${groupInfo.label} 직군으로, ` : ''}${base}`;
 }
 
 async function loadJobData() {
@@ -204,7 +219,8 @@ async function loadJobData() {
     middle: item['KNOW직업중분류'],
     small: item['KNOW직업소분류'],
     subclass: item['KNOW직업세분류'],
-    detail: item['KNOW직업세세분류']
+    detail: item['KNOW직업세세분류'],
+    duty: String(item['직무설명'] || '').trim()
   })).filter(item => item.name).map(item => {
     const groupInfo = KNOW_GROUP_DESC[`${item.major}-${item.middle}`];
     const category = categoryOfOccupation(item);
@@ -215,6 +231,7 @@ async function loadJobData() {
       group: groupInfo ? groupInfo.label : `분류코드 ${item.major}-${item.middle}-${item.small}`,
       codePath: `${item.major}-${item.middle}-${item.small}-${item.subclass}-${item.detail}`,
       overview: buildGeneralJobOverview(item),
+      skillOverview: buildGeneralJobSkill(item),
       variants: nameVariants(item.name),
       isNewJob: false
     };
@@ -761,8 +778,10 @@ function setResultHeadVisible(visible) {
 }
 
 function renderMatchedResult(job, ctx) {
-  const taskHits = findOverlap(ctx.tasks, job.overview);
-  const skillHits = findOverlap(ctx.skills, job.overview);
+  const taskText = job.overview;                         // 주요 업무 설명 (일반 직업: 직무설명 JSON)
+  const skillText = job.skillOverview || job.overview;   // 필요 역량 설명 (일반 직업: 직군별 표준 역량)
+  const taskHits = findOverlap(ctx.tasks, taskText);
+  const skillHits = findOverlap(ctx.skills, `${taskText} ${skillText}`);
   const source = sourceLabel(job);
 
   setText('resultCaption', job.isNewJob
@@ -774,14 +793,14 @@ function renderMatchedResult(job, ctx) {
   else if (taskHits.length === 1) setStatus('cardTaskStatus', 'check', '추가 확인 필요');
   else setStatus('cardTaskStatus', 'diff', '차이');
   setText('cardTaskUser', ctx.tasks);
-  setText('cardTaskActual', job.overview);
+  setText('cardTaskActual', taskText);
   setText('cardTaskKeywords', keywordText(taskHits));
 
   // 2. 필요 역량
   if (skillHits.length >= 1) setStatus('cardSkillStatus', 'match', '일치');
   else setStatus('cardSkillStatus', 'check', '추가 확인 필요');
   setText('cardSkillUser', ctx.skills);
-  setText('cardSkillActual', job.overview);
+  setText('cardSkillActual', skillText);
   setText('cardSkillKeywords', keywordText(skillHits));
 
   // 3. 직업 분류
@@ -1025,7 +1044,7 @@ function renderMyPage() {
 
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, char => ({
-    '&': '&', '<': '<', '>': '>', '"': '"', "'": '''
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
   }[char]));
 }
 
