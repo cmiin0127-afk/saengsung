@@ -296,7 +296,9 @@ input::placeholder, textarea::placeholder { color: #a2a49e; }
 }
 .mypage-job-item strong { display:block; font-size:12px; }
 .mypage-job-item small { display:block; margin-top:4px; color:var(--muted); font-size:10px; }
-.favorite-job-item { padding:0 12px 0 14px; }
+.favorite-job-item, .history-job-item { padding:0 12px 0 14px; }
+.mypage-job-open { flex:1; min-width:0; border:0; padding:13px 0; background:transparent; color:inherit; text-align:left; }
+.remove-history { border:0; border-radius:8px; padding:8px 10px; color:#c34e59; background:#fff4f4; font-size:11px; cursor:pointer; }
 .mypage-job-open { flex:1; min-width:0; border:0; padding:13px 0; background:transparent; color:inherit; text-align:left; }
 .remove-favorite { border:0; background:transparent; color:#c34e59; font-size:17px; padding:8px; }
 .mypage-storage-note { margin:15px 0 0; color:var(--muted); font-size:9px; line-height:1.5; }
@@ -383,3 +385,41 @@ main { flex: 1 0 auto; display: flex; flex-direction: column; width: 100%; }
 
 /* 직업명이 단어 중간에서 끊기지 않도록 */
 .career-name { word-break: keep-all; overflow-wrap: break-word; }
+
+
+/* 직업 537개 목록 선택 창 */
+.occupation-modal { position:fixed; inset:0; z-index:120; display:grid; place-items:center; padding:16px; background:rgba(18,35,67,.48); }
+.occupation-modal[hidden] { display:none !important; }
+.occupation-panel { width:min(100%,620px); max-height:min(88vh,820px); display:flex; flex-direction:column; background:#fff; border:1px solid #e3eaf5; border-radius:22px; padding:22px; box-shadow:0 24px 70px rgba(20,45,90,.24); }
+.occupation-modal-head { position:relative; display:flex; justify-content:space-between; padding-right:30px; }
+.occupation-modal-head h2 { margin:5px 0 6px; color:#203654; font-size:21px; }
+.occupation-modal-head p { margin:0 0 16px; color:#7889a4; font-size:12px; }
+.occupation-modal-head .login-close { top:0; right:0; }
+.occupation-search-label { display:block; margin:0 0 7px; color:#314665; font-size:12px; font-weight:800; }
+#occupationSearch { width:100%; border:1px solid #dce5f3; border-radius:13px; padding:13px 14px; outline:none; font:inherit; font-size:13px; }
+#occupationSearch:focus { border-color:#4778dc; box-shadow:0 0 0 3px rgba(71,120,220,.1); }
+.occupation-results-meta { padding:12px 2px 8px; color:#7e8da6; font-size:11px; font-weight:800; }
+.occupation-results { overflow:auto; min-height:120px; max-height:52vh; display:grid; grid-template-columns:1fr 1fr; gap:8px; align-content:start; }
+.occupation-option { min-width:0; padding:11px 12px; border:1px solid #e5ebf5; border-radius:13px; background:#fff; text-align:left; display:flex; flex-direction:column; gap:5px; color:#263d60; }
+.occupation-option:hover { border-color:#9bb5ed; background:#f6f8ff; }
+.occupation-option strong { font-size:12px; line-height:1.45; }
+.occupation-option small { color:#8998b0; font-size:9px; }
+.occupation-empty { grid-column:1/-1; padding:30px 12px; text-align:center; color:#8795aa; font-size:12px; }
+.occupation-modal-foot { display:flex; justify-content:space-between; align-items:center; gap:10px; padding-top:14px; color:#8795aa; font-size:10px; }
+.occupation-modal-foot .secondary { width:auto; padding:9px 18px; }
+.general-occupation-card { margin-top:14px; padding:14px; border:1px solid #dfe8f7; border-radius:14px; background:#f8faff; text-align:left; }
+.general-occupation-title { margin-bottom:6px; color:#2d56a6; font-size:12px; font-weight:850; }
+.general-occupation-card p { margin:0 0 10px; color:#71819a; font-size:10px; line-height:1.65; }
+.occupation-code-list { margin:0; display:grid; grid-template-columns:1fr 1fr; gap:7px; }
+.occupation-code-list div { padding:8px 9px; border-radius:9px; background:#fff; }
+.occupation-code-list dt { color:#8795aa; font-size:9px; }
+.occupation-code-list dd { margin:3px 0 0; color:#263d60; font-size:12px; font-weight:800; }
+@media(max-width:520px) {
+  .occupation-panel { padding:18px 14px; }
+  .occupation-results { grid-template-columns:1fr; max-height:55vh; }
+  .occupation-modal-foot { align-items:flex-start; }
+}
+\n.home-feature-grid .feature-tile:nth-child(3){grid-column:1/-1;flex-direction:row;align-items:center;gap:10px}\n.home-feature-grid .feature-tile:nth-child(3) small{margin-left:auto;text-align:right;max-width:52%}\n
+.occupation-option.is-new { border-color:#c9d8f7; background:#f5f8ff; }
+.occupation-option.is-new small { color:#3565ce; font-weight:800; }
+.career-category-grid button { cursor:pointer; }

@@ -71,18 +71,21 @@ function showError(id) {
 
 /* ============================================================
    직업 데이터 (JSON 호출)
-   - data/job_subclassifications.json : 신직업 41개 (영역 · 직군 · 직업 · 직무개요)
+   - data/job_subclassifications.json : 연구 직업 데이터 (앞의 41개가 최종 선정 신직업)
+   - data/occupations_537.json : 직업 세세분류 537개
    - data/2025_new_jobs_study_summary.json : 연구 출처, 영역별 직업 수, 신직업 공통 특징
    ============================================================ */
 const DATA_PATHS = {
   jobs: 'data/job_subclassifications.json',
   study: 'data/2025_new_jobs_study_summary.json',
+  occupations: 'data/occupations_537.json',
   fallback: 'data/data-fallback.js'
 };
 
 let jobData = [];        // 직업 목록
 let domainOrder = [];    // 영역 표시 순서 (연구 요약 파일 기준)
 let studyInfo = null;    // 연구 요약 정보
+let occupationData = []; // 직업 세세분류 537개
 let jobDataReady = null; // 데이터 로딩 Promise
 
 function normalizeName(value) {
@@ -116,23 +119,29 @@ async function fetchJson(path) {
 async function loadJobData() {
   let rawJobs = [];
   let rawStudy = [];
+  let rawOccupations = [];
   try {
-    // 파일을 더블클릭해서 열면(file://) 브라우저가 fetch를 막으므로 바로 대체 파일 사용
+    // 파일을 더블클릭해서 열면(file://) 브라우저가 fetch를 막으므로 대체 파일 사용
     if (location.protocol === 'file:') throw new Error('file protocol');
-    [rawJobs, rawStudy] = await Promise.all([fetchJson(DATA_PATHS.jobs), fetchJson(DATA_PATHS.study)]);
+    [rawJobs, rawStudy, rawOccupations] = await Promise.all([
+      fetchJson(DATA_PATHS.jobs),
+      fetchJson(DATA_PATHS.study),
+      fetchJson(DATA_PATHS.occupations)
+    ]);
   } catch (error) {
-    // fetch 실패 시 data/data-fallback.js (JSON과 같은 내용) 사용
     try {
       await loadScript(DATA_PATHS.fallback);
       rawJobs = window.JINROFIT_FALLBACK.jobs;
       rawStudy = window.JINROFIT_FALLBACK.study;
+      rawOccupations = window.JINROFIT_FALLBACK.occupations || [];
     } catch (fallbackError) {
       console.warn('직업 데이터를 불러오지 못했습니다.', error);
     }
   }
 
   studyInfo = Array.isArray(rawStudy) ? (rawStudy[0] || null) : rawStudy;
-  jobData = (rawJobs || []).map(item => ({
+  // 연구 보고서 요약에서 최종 선정한 신직업은 41개이며, 원본 직업 데이터 앞 41개가 해당 목록입니다.
+  jobData = (rawJobs || []).slice(0, 41).map(item => ({
     id: item['연번'],
     domain: item['영역'],
     group: item['직군'],
@@ -141,6 +150,14 @@ async function loadJobData() {
     variants: nameVariants(item['직업'])
   }));
 
+  occupationData = (rawOccupations || []).map(item => ({
+    name: item['KNOW직업명'],
+    major: item['KNOW직업대분류'],
+    middle: item['KNOW직업중분류'],
+    small: item['KNOW직업소분류'],
+    subclass: item['KNOW직업세분류'],
+    detail: item['KNOW직업세세분류']
+  })).filter(item => item.name);
   const studyDomains = studyInfo && studyInfo.final_selected_jobs_by_domain
     ? Object.keys(studyInfo.final_selected_jobs_by_domain) : [];
   const jobDomains = [...new Set(jobData.map(job => job.domain))];
@@ -160,6 +177,157 @@ function findJob(input) {
   );
   if (candidates.length === 1) return { job: candidates[0], exact: false, candidates };
   return { job: null, exact: false, candidates };
+}
+
+// 537개 직업 세세분류 데이터에서 직업명 찾기
+function findGeneralOccupation(input) {
+  const variants = nameVariants(input);
+  return occupationData.find(item => nameVariants(item.name).some(v => variants.includes(v))) || null;
+}
+
+
+/* ============================================================
+   홈 '직업 분야 탐색' 8개 분야 → 직업 목록
+   - 직업 세세분류(537개): KNOW 대분류-중분류 코드로 분야 지정, 일부는 직업명으로 예외 지정
+   - 2025 신직업(41개): 영역 기준으로 분야 지정, 일부는 직업명으로 예외 지정
+   - 8개 분야에 해당하지 않는 직업(서비스, 운전·운송, 농림어업 등)은 '직업 목록에서 선택'에서 검색 가능
+   ============================================================ */
+const CATEGORY_LIST = ['IT · 기술', '디자인 · 콘텐츠', '경영 · 마케팅', '금융 · 회계', '교육 · 사회', '보건 · 의료', '공학 · 제조', '공공 · 안전'];
+
+// 대분류-중분류 코드 → 분야
+const CATEGORY_BY_GROUP = {
+  '1-3': 'IT · 기술', '8-4': 'IT · 기술',
+  '4-1': '디자인 · 콘텐츠',
+  '0-1': '경영 · 마케팅', '0-2': '경영 · 마케팅', '6-1': '경영 · 마케팅',
+  '0-3': '금융 · 회계',
+  '1-1': '교육 · 사회', '2-1': '교육 · 사회', '2-3': '교육 · 사회', '4-2': '교육 · 사회',
+  '3-0': '보건 · 의료', '5-5': '보건 · 의료',
+  '1-2': '공학 · 제조', '1-4': '공학 · 제조', '1-5': '공학 · 제조', '7-0': '공학 · 제조',
+  '8-1': '공학 · 제조', '8-2': '공학 · 제조', '8-3': '공학 · 제조', '8-5': '공학 · 제조',
+  '8-6': '공학 · 제조', '8-7': '공학 · 제조', '8-8': '공학 · 제조',
+  '2-2': '공공 · 안전', '2-4': '공공 · 안전', '2-5': '공공 · 안전', '5-4': '공공 · 안전'
+};
+
+// 직업명 예외 (코드 기준 분야보다 우선)
+const CATEGORY_BY_NAME = {};
+[
+  ['IT · 기술', ['정보통신관리자']],
+  ['디자인 · 콘텐츠', ['예술·디자인·방송관리자', '공연·영화·음반기획자', '출판·자료편집사무원']],
+  ['금융 · 회계', ['금융관리자', '보험관리자', '회계사', '세무사', '관세사', '감정평가사', '회계사무원', '경리사무원', '감사사무원']],
+  ['교육 · 사회', ['유치원 원장 및 원감', '초등학교 교장 및 교감', '중고등학교 교장 및 교감', '대학교 총장 및 대학학장', '사회복지관리자', '취업알선원', '인적자원전문가', '인사·교육·훈련사무원']],
+  ['보건 · 의료', ['보건·의료관리자', '의학연구원', '약학연구원', '축산학·수의학연구원', '생명과학시험원', '의학물리사']],
+  ['공학 · 제조', ['건설·채굴관리자', '전기·가스·수도관리자', '제조·생산관리자']],
+  ['공공 · 안전', ['고위공무원', '정부행정관리자', '경찰·소방·교도관리자', '경비·청소관리자', '정부·공공행정전문가', '행정사', '조세행정사무원', '관세행정사무원', '병무행정사무원', '공공행정사무원', '법원공무원']]
+].forEach(([category, names]) => names.forEach(name => { CATEGORY_BY_NAME[normalizeName(name)] = category; }));
+
+// 신직업 영역 → 분야
+function categoryOfNewJobDomain(domain) {
+  return String(domain || '').includes('인공지능') ? 'IT · 기술' : '공학 · 제조';
+}
+
+function categoryOfOccupation(item) {
+  return CATEGORY_BY_NAME[normalizeName(item.name)] || CATEGORY_BY_GROUP[`${item.major}-${item.middle}`] || null;
+}
+
+function categoryOfNewJob(job) {
+  return CATEGORY_BY_NAME[normalizeName(job.name)] || categoryOfNewJobDomain(job.domain);
+}
+
+// 분야별 직업 목록: 2025 신직업을 먼저, 이어서 직업 세세분류
+function getCategoryItems(category) {
+  const newJobs = jobData
+    .filter(job => categoryOfNewJob(job) === category)
+    .map(job => ({ name: job.name, group: job.group, isNew: true }));
+  const occupations = occupationData.filter(item => categoryOfOccupation(item) === category);
+  return [...newJobs, ...occupations];
+}
+
+let activeCategory = null; // null이면 전체 직업 목록
+
+// 홈의 분야 버튼: 해당 분야 직업 목록 창 열기
+async function openCategoryBrowser(category) {
+  if (jobDataReady) await jobDataReady;
+  const modal = document.getElementById('occupationModal');
+  if (!modal) { navigateToStep('career'); return; }
+  activeCategory = category;
+  const items = getCategoryItems(category);
+  const newCount = items.filter(item => item.isNew).length;
+  document.getElementById('occupationModalKicker').textContent = 'CAREER FIELD';
+  document.getElementById('occupationModalTitle').textContent = `${category} 직업`;
+  document.getElementById('occupationModalDesc').textContent =
+    `이 분야의 직업 ${items.length}개${newCount ? ` (2025 신직업 ${newCount}개 포함)` : ''}를 확인할 수 있어요.`;
+  modal.hidden = false;
+  const search = document.getElementById('occupationSearch');
+  if (search) {
+    search.value = '';
+    renderOccupationBrowser('');
+    setTimeout(() => search.focus(), 30);
+  }
+}
+
+// 홈의 '직업 비교하기'에서 537개 직업 목록 창 열기
+async function openOccupationBrowser() {
+  if (jobDataReady) await jobDataReady;
+  const modal = document.getElementById('occupationModal');
+  if (!modal) { navigateToStep('career'); return; }
+  activeCategory = null;
+  document.getElementById('occupationModalKicker').textContent = 'CAREER DATABASE';
+  document.getElementById('occupationModalTitle').textContent = '직업 목록에서 선택하기';
+  document.getElementById('occupationModalDesc').textContent = '직업 세세분류 데이터 537개를 검색할 수 있어요.';
+  modal.hidden = false;
+  const search = document.getElementById('occupationSearch');
+  if (search) {
+    search.value = '';
+    renderOccupationBrowser('');
+    setTimeout(() => search.focus(), 30);
+  }
+}
+
+function closeOccupationBrowser() {
+  const modal = document.getElementById('occupationModal');
+  if (modal) modal.hidden = true;
+}
+
+function renderOccupationBrowser(query) {
+  const list = document.getElementById('occupationResults');
+  const meta = document.getElementById('occupationResultsMeta');
+  if (!list || !meta) return;
+  const key = normalizeName(query);
+  const pool = activeCategory ? getCategoryItems(activeCategory) : occupationData;
+  const matches = pool.filter(item => !key || normalizeName(item.name).includes(key));
+  meta.textContent = `검색 결과 ${matches.length}개 / 전체 ${pool.length}개`;
+  list.textContent = '';
+  if (!matches.length) {
+    const empty = document.createElement('div');
+    empty.className = 'occupation-empty';
+    empty.textContent = '검색 결과가 없어요. 다른 직업명으로 검색해 주세요.';
+    list.appendChild(empty);
+    return;
+  }
+  matches.forEach(item => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'occupation-option';
+    const name = document.createElement('strong');
+    name.textContent = item.name;
+    const code = document.createElement('small');
+    code.textContent = item.isNew
+      ? `2025 신직업 · ${item.group}`
+      : `분류 코드 ${item.major}-${item.middle}-${item.small}-${item.subclass}-${item.detail}`;
+    if (item.isNew) button.classList.add('is-new');
+    button.append(name, code);
+    button.addEventListener('click', () => {
+      document.getElementById('career').value = item.name;
+      closeOccupationBrowser();
+      navigateToStep('career');
+    });
+    list.appendChild(button);
+  });
+}
+
+function openNewJobsWindow() {
+  const popup = window.open('new-jobs.html', 'jinrofitNewJobs', 'width=1080,height=820,resizable=yes,scrollbars=yes');
+  if (!popup) alert('새 창이 차단되었어요. 브라우저에서 팝업을 허용한 뒤 다시 눌러 주세요.');
 }
 
 // 받침 유무에 따라 조사 선택 (예: josa('크리에이터', '이', '가') → '가')
@@ -449,11 +617,23 @@ function renderMatchedResult(job, ctx) {
   document.getElementById('missingResult').hidden = true;
 }
 
-function renderMissingResult(career, candidates) {
+function renderMissingResult(career, candidates, generalOccupation = null) {
   const suggest = document.getElementById('missingSuggest');
   suggest.textContent = '';
 
-  if (candidates.length) {
+  const generalPanel = document.getElementById('generalOccupationResult');
+  if (generalPanel) generalPanel.hidden = !generalOccupation;
+  if (generalOccupation) {
+    setText('missingTitle', '직업 분류 정보를 찾았어요');
+    setText('missingText', `'${career}' 직업은 직업 세세분류 데이터에서 확인했어요. 다만 이 데이터에는 업무·필요 역량 설명이 없어 키워드 비교는 제공되지 않습니다.`);
+    setText('generalOccupationNote', '첫 번째 파일에 수록된 직업명과 분류 코드를 표시합니다. 업무·역량의 실제 비교에는 별도의 직무정보가 필요합니다.');
+    setText('occupationMajor', generalOccupation.major);
+    setText('occupationMiddle', generalOccupation.middle);
+    setText('occupationSmall', generalOccupation.small);
+    setText('occupationSub', generalOccupation.subclass);
+    setText('occupationDetail', generalOccupation.detail);
+    setText('resultCaption', '직업 세세분류 데이터 기준');
+  } else if (candidates.length) {
     setText('missingTitle', '혹시 이런 직업을 찾으셨나요?');
     setText('missingText', `'${career}'${josa(career, '과', '와')} 비슷한 신직업이 여러 개 있어요. 하나를 고르면 입력하신 내용으로 바로 비교해요.`);
     candidates.slice(0, 8).forEach(job => suggest.appendChild(makeChip(job.name, () => compareWith(job.name))));
@@ -484,6 +664,8 @@ function showEmptyResult() {
   setText('missingTitle', '아직 비교 결과가 없어요');
   setText('missingText', '희망 직업, 예상 업무, 필요 역량을 입력하면 결과를 확인할 수 있어요.');
   document.getElementById('missingSuggest').textContent = '';
+  const generalPanel = document.getElementById('generalOccupationResult');
+  if (generalPanel) generalPanel.hidden = true;
   document.getElementById('matchedResult').hidden = true;
   document.getElementById('missingResult').hidden = false;
 }
@@ -505,7 +687,8 @@ async function processComparison() {
 
   await jobDataReady;
   const { job, exact, candidates } = findJob(career);
-  const careerName = job ? job.name : career;
+  const generalOccupation = job ? null : findGeneralOccupation(career);
+  const careerName = job ? job.name : (generalOccupation ? generalOccupation.name : career);
 
   document.getElementById('resultCareer').textContent = careerName;
   document.getElementById('outTasks').textContent = tasks;
@@ -513,7 +696,7 @@ async function processComparison() {
   setResultHeadVisible(true);
 
   if (job) renderMatchedResult(job, { career, tasks, skills, exact });
-  else renderMissingResult(career, candidates);
+  else renderMissingResult(career, candidates, generalOccupation);
 
   isResultAvailable = true;
   saveComparisonRecord({ career: careerName, tasks, skills, date: new Date().toISOString() });
@@ -532,15 +715,26 @@ function updateStatusTime() {
 document.addEventListener("DOMContentLoaded", () => {
   jobDataReady = loadJobData();
   initJobSuggest();
+  const occupationSearch = document.getElementById('occupationSearch');
+  if (occupationSearch) occupationSearch.addEventListener('input', () => renderOccupationBrowser(occupationSearch.value));
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') closeOccupationBrowser();
+  });
   updateStatusTime();
   setInterval(updateStatusTime, 30000);
 });
 
 
 // 브라우저에 비교 기록과 좋아요 직업 저장
+function storageKeyForUser(key) {
+  const user = window.jinrofitUser;
+  return user && user.uid ? `${key}_${user.uid}` : key;
+}
+
 function readSavedList(key) {
   try {
-    return JSON.parse(localStorage.getItem(key) || '[]');
+    const scopedKey = storageKeyForUser(key);
+    return JSON.parse(localStorage.getItem(scopedKey) || (window.jinrofitUser ? '[]' : '[]'));
   } catch (error) {
     return [];
   }
@@ -548,7 +742,7 @@ function readSavedList(key) {
 
 function writeSavedList(key, value) {
   try {
-    localStorage.setItem(key, JSON.stringify(value));
+    localStorage.setItem(storageKeyForUser(key), JSON.stringify(value));
   } catch (error) {
     console.warn('브라우저 저장 공간을 사용할 수 없습니다.', error);
   }
@@ -556,7 +750,7 @@ function writeSavedList(key, value) {
 
 function saveComparisonRecord(record) {
   const history = readSavedList('jinrofitComparisonHistory');
-  history.unshift(record);
+  history.unshift({ ...record, id: record.id || (Date.now() + '-' + Math.random().toString(16).slice(2)) });
   writeSavedList('jinrofitComparisonHistory', history.slice(0, 30));
 }
 
@@ -595,10 +789,12 @@ function renderMyPage() {
 
   historyBox.innerHTML = history.length
     ? history.map(item => `
-      <button class="mypage-job-item" type="button" onclick="openSavedJob(decodeURIComponent('${encodeURIComponent(item.career)}'))">
-        <span><strong>${escapeHtml(item.career)}</strong><small>${formatSavedDate(item.date)} 비교함</small></span>
-        <span class="mypage-arrow" aria-hidden="true">›</span>
-      </button>`).join('')
+      <div class="mypage-job-item history-job-item">
+        <button class="mypage-job-open" type="button" onclick="openSavedJob(decodeURIComponent('${encodeURIComponent(item.career)}'))">
+          <span><strong>${escapeHtml(item.career)}</strong><small>${formatSavedDate(item.date)} 비교함</small></span>
+        </button>
+        <button class="remove-history" type="button" onclick="removeHistory('${escapeHtml(String(item.id || item.date))}')" aria-label="비교 기록 삭제">삭제</button>
+      </div>`).join('')
     : '<div class="mypage-empty">아직 비교한 직업이 없어요.<br>희망 직업을 입력하고 비교해 보세요.</div>';
 
   favoriteBox.innerHTML = favorites.length
@@ -627,6 +823,13 @@ function formatSavedDate(value) {
 function openSavedJob(career) {
   document.getElementById('career').value = career;
   navigateToStep('career');
+}
+
+function removeHistory(recordId) {
+  const history = readSavedList('jinrofitComparisonHistory');
+  const updated = history.filter(item => String(item.id || item.date) !== String(recordId));
+  writeSavedList('jinrofitComparisonHistory', updated);
+  renderMyPage();
 }
 
 function removeFavorite(career) {

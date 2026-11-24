@@ -6,6 +6,10 @@
 <meta name="theme-color" content="#ffffff">
 <title>진로핏 - 모바일 버전</title>
 <link rel="stylesheet" href="css/style.css">
+<style>
+:root{--fit-blue:#315fce;--fit-dark:#173a85;--fit-bg:#f4f7fd;--fit-border:#e2e9f5;--fit-ink:#192d4d;--fit-muted:#7485a2}
+body{background:#e9eef7!important}.phone-device{background:#fff!important;box-shadow:0 20px 60px rgba(34,65,120,.13)!important;border:1px solid #e7edf6!important}.app{background:#f6f8fc!important}.topbar{background:#fff!important;border-bottom:1px solid #e9eef7!important}.brand{font-weight:850!important;color:var(--fit-blue)!important;letter-spacing:-.5px}.brand:before{content:'✦';display:inline-grid;place-items:center;background:var(--fit-blue);color:#fff;width:27px;height:27px;border-radius:9px;margin-right:8px;font-size:14px}.login-button{border:1px solid #dce6fa!important;background:#f6f8ff!important;color:var(--fit-blue)!important;border-radius:20px!important}.content-area{background:#f6f8fc!important}.screen{padding:18px!important}.home-hero{position:relative;overflow:hidden;background:linear-gradient(135deg,#244cb3 0%,#3972e3 62%,#6d91f2 100%);color:white;border-radius:26px;padding:26px 22px 28px;box-shadow:0 14px 28px rgba(41,88,190,.17);margin-bottom:18px;min-height:275px}.hero-orbit{position:absolute;width:180px;height:180px;border:1px solid rgba(255,255,255,.18);border-radius:50%;right:-55px;top:-55px;box-shadow:0 0 0 20px rgba(255,255,255,.04),0 0 0 40px rgba(255,255,255,.04)}.hero-kicker{font-size:10px;font-weight:900;letter-spacing:2px;color:#d6e4ff;margin-bottom:14px}.home-hero h1{position:relative;font-size:27px;line-height:1.35;font-weight:850;letter-spacing:-1px;margin:0 0 12px;color:#fff}.home-hero p{font-size:12px;line-height:1.7;color:#e2ebff;margin:0 0 18px}.hero-button{border:1px solid rgba(255,255,255,.45);background:rgba(255,255,255,.12);border-radius:15px;padding:13px 16px;color:white;font-weight:800;font-size:13px}.hero-button span{margin-left:10px;font-size:17px}.home-feature-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:23px}.feature-tile{background:#fff;border:1px solid #e4eaf5;border-radius:20px;padding:16px 14px;text-align:left;box-shadow:0 5px 15px rgba(40,70,120,.04);display:flex;flex-direction:column;gap:8px;color:var(--fit-ink)}.feature-icon{width:34px;height:34px;border-radius:12px;background:#edf3ff;color:#3768d1;display:grid;place-items:center;font-size:19px}.feature-tile strong{font-size:14px}.feature-tile small{font-size:11px;line-height:1.5;color:var(--fit-muted)}.home-section{margin:22px 0}.home-section-heading{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px;color:#203654}.home-section-heading strong{font-size:15px}.home-section-heading span{font-size:9px;color:#8a9ab5;font-weight:800;letter-spacing:.6px}.career-category-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.career-category-grid button{border:1px solid #e5ebf5;background:white;border-radius:15px;padding:13px 12px;text-align:left;font-weight:750;color:#314665;display:flex;align-items:center;gap:10px;font-size:12px}.career-category-grid button span{display:grid;place-items:center;background:#edf3ff;color:#3565ce;width:32px;height:32px;border-radius:11px;font-size:16px}.home-step-card{background:#fff;border:1px solid #e5ebf5;border-radius:20px;padding:8px 16px}.home-step{display:flex;align-items:center;gap:13px;padding:14px 2px}.home-step+.home-step{border-top:1px solid #f0f3f8}.home-step>b{width:35px;height:35px;border-radius:12px;background:#edf3ff;display:grid;place-items:center;color:#3565ce;font-size:12px}.home-step div{display:flex;flex-direction:column;gap:4px}.home-step strong{font-size:13px;color:#243a5b}.home-step small{font-size:11px;color:#8796af}.bottom-nav{background:#fff!important;border-top:1px solid #e6ecf5!important}.tab-button{color:#8b9bb5!important}.tab-button.active{background:#edf3ff!important;color:#3163cf!important;border-radius:12px!important}.primary,.home-career-button{background:linear-gradient(135deg,#315fce,#467ce5)!important;box-shadow:0 8px 18px rgba(49,95,206,.14)}.secondary{border-radius:14px!important}.field input,.field textarea{border-radius:14px!important;border-color:#e0e8f4!important;background:#fff!important}.result-card,.user-summary,.mypage-list,.overview{border-radius:18px!important;border-color:#e4eaf5!important}.form-intro h2{letter-spacing:-.5px}.bottom-nav{padding-top:7px!important}.comparison-notice{background:#f7f9fd;border:1px solid #e6ecf5;border-radius:12px;padding:12px;margin-top:12px}.field textarea{min-height:120px;line-height:1.65}.form-error[hidden]{display:none}
+</style>
 </head>
 <body>
 <div class="phone-device">
@@ -30,23 +34,35 @@
 
         <!-- 1. 홈 화면 (시작 화면) -->
         <section class="screen active" id="screen-start" aria-label="홈 화면">
-          <div class="home-heading-row">
+          <div class="home-hero">
+            <div class="hero-orbit" aria-hidden="true"></div>
+            <div class="hero-kicker">✦ CAREER DISCOVERY</div>
             <h1>내가 생각한 직업,<br>실제 업무와<br>얼마나 같을까요?</h1>
-            <button class="home-recommend-button" type="button" onclick="recommendJob()">직업 추천받기 <span aria-hidden="true">→</span></button>
+            <p>막연했던 진로를 구체적인 직업정보와 비교하고<br>나에게 필요한 다음 탐색을 시작해 보세요.</p>
+            <button class="hero-button" type="button" onclick="openOccupationBrowser()">직업 비교하기 <span>→</span></button>
           </div>
-
-          <div class="overview">
-            <div class="overview-title">간단한 3단계로 확인해요</div>
-            <div class="flow">
-              <div class="flow-row"><div class="flow-num">01</div><div><div class="flow-text">희망 직업 입력</div></div></div>
-              <div class="flow-row"><div class="flow-num">02</div><div><div class="flow-text">예상 업무 및 필요 역량 입력</div></div></div>
-              <div class="flow-row"><div class="flow-num">03</div><div><div class="flow-text">실제 정보와 비교 확인</div></div></div>
+          <div class="home-feature-grid">
+            <button class="feature-tile" type="button" onclick="openOccupationBrowser()"><span class="feature-icon">⌕</span><strong>직업 정보 탐색</strong><small>관심 있는 직업의 실제 업무를 확인해요</small></button>
+            <button class="feature-tile" type="button" onclick="navigateToStep('career')"><span class="feature-icon">⇄</span><strong>생각과 현실 비교</strong><small>내 예상과 직업정보를 나란히 살펴봐요</small></button>
+            <button class="feature-tile" type="button" onclick="openNewJobsWindow()"><span class="feature-icon">✦</span><strong>요즘 떠오르는 신직업</strong><small>2025 신성장 산업 신직업 41개를 살펴봐요</small></button>
+          </div>
+          <div class="home-section">
+            <div class="home-section-heading"><strong>직업 분야 탐색</strong><span>EXPLORE</span></div>
+            <div class="career-category-grid">
+              <button type="button" onclick="openCategoryBrowser('IT · 기술')"><span>⌘</span>IT · 기술</button>
+              <button type="button" onclick="openCategoryBrowser('디자인 · 콘텐츠')"><span>✎</span>디자인 · 콘텐츠</button>
+              <button type="button" onclick="openCategoryBrowser('경영 · 마케팅')"><span>◈</span>경영 · 마케팅</button>
+              <button type="button" onclick="openCategoryBrowser('금융 · 회계')"><span>▤</span>금융 · 회계</button>
+              <button type="button" onclick="openCategoryBrowser('교육 · 사회')"><span>♧</span>교육 · 사회</button>
+              <button type="button" onclick="openCategoryBrowser('보건 · 의료')"><span>✚</span>보건 · 의료</button>
+              <button type="button" onclick="openCategoryBrowser('공학 · 제조')"><span>⚙</span>공학 · 제조</button>
+              <button type="button" onclick="openCategoryBrowser('공공 · 안전')"><span>◎</span>공공 · 안전</button>
             </div>
           </div>
-
-          <button class="home-career-button" type="button" onclick="navigateToStep('career')">
-            직업 비교하러 가기 <span aria-hidden="true">→</span>
-          </button>
+          <div class="home-section">
+            <div class="home-section-heading"><strong>진로핏 이용 방법</strong><span>START HERE · 3 STEPS</span></div>
+            <div class="home-step-card"><div class="home-step"><b>01</b><div><strong>희망 직업 입력</strong><small>궁금하거나 관심 있는 직업을 선택해요</small></div></div><div class="home-step"><b>02</b><div><strong>예상 업무와 역량 작성</strong><small>내가 알고 있는 내용을 자유롭게 적어요</small></div></div><div class="home-step"><b>03</b><div><strong>실제 직업정보와 비교</strong><small>공통점과 더 알아볼 내용을 확인해요</small></div></div></div>
+          </div>
         </section>
 
         <!-- 2. 희망 직업 입력 단계 화면 -->
@@ -58,7 +74,7 @@
           <div class="field">
             <label for="career">희망 직업명 <span class="required">필수</span></label>
             <div class="combo">
-              <input id="career" name="career" type="text" placeholder="예: 인공지능(AI) 콘텐츠 크리에이터" autocomplete="off" value="인공지능(AI) 콘텐츠 크리에이터" role="combobox" aria-expanded="false" aria-controls="jobSuggest" aria-autocomplete="list">
+              <input id="career" name="career" type="text" placeholder="예: 인공지능(AI) 콘텐츠 크리에이터" autocomplete="off" placeholder="예: 인공지능(AI) 콘텐츠 크리에이터" role="combobox" aria-expanded="false" aria-controls="jobSuggest" aria-autocomplete="list">
               <div class="job-suggest" id="jobSuggest" role="listbox" aria-label="신직업 목록" hidden></div>
             </div>
           </div>
@@ -77,13 +93,12 @@
           </div>
           <div class="field">
             <label for="tasks">예상 주요 업무 <span class="required">필수</span></label>
-            <textarea id="tasks" name="tasks" placeholder="예: AI로 음악이나 영상 콘텐츠를 만든다.&#10;만든 결과물의 품질을 검토한다.&#10;콘텐츠 운영 방향을 기획한다.">AI로 음악이나 영상 같은 콘텐츠를 만든다.
-만든 콘텐츠를 검토하고 수정한다.</textarea>
+            <textarea id="tasks" name="tasks" placeholder="예: AI로 음악이나 영상 콘텐츠를 만든다.&#10;만든 결과물의 품질을 검토한다.&#10;콘텐츠 운영 방향을 기획한다."></textarea>
           </div>
           <div class="form-error" id="errorTasks" role="alert">예상 주요 업무를 입력해 주세요.</div>
           <div class="field">
             <label for="skills">예상 필요 역량 <span class="required">필수</span></label>
-            <textarea id="skills" name="skills" placeholder="예: 생성형 AI 활용 능력&#10;창의적인 기획 능력&#10;영상 편집 능력">생성형 AI 도구 활용 능력, 콘텐츠 기획력</textarea>
+            <textarea id="skills" name="skills" placeholder="예: 생성형 AI 활용 능력&#10;창의적인 기획 능력&#10;영상 편집 능력"></textarea>
           </div>
           <div class="form-error" id="errorSkills" role="alert">예상 필요 역량을 입력해 주세요.</div>
           <div class="form-actions">
@@ -204,9 +219,9 @@
             </article>
 
             <div class="ai-box">
-              <div class="ai-label">AI 비교 분석 리포트</div>
+              <div class="ai-label">직업정보 기반 비교 분석</div>
               <h3>핵심 인사이트 요약</h3>
-              <p id="resultReport"></p>
+              <p id="resultReport"></p><p class="comparison-notice" style="font-size:11px;line-height:1.65;color:#7485a2;margin-top:12px">이 결과는 입력한 내용과 공개 직업정보의 키워드를 비교한 참고 자료입니다. 키워드 일치가 업무 전체의 동일성을 의미하지 않으므로 실제 직무 내용을 추가로 확인해 주세요.</p>
               <div class="trend-box" id="trendBox" hidden>
                 <div class="trend-label">2025 신직업의 공통 특징</div>
                 <ul class="trend-list" id="trendList"></ul>
@@ -229,11 +244,23 @@
               <h3 id="missingTitle"></h3>
               <p id="missingText"></p>
               <div class="missing-suggest" id="missingSuggest"></div>
+              <div class="general-occupation-card" id="generalOccupationResult" hidden>
+                <div class="general-occupation-title">직업 세세분류 정보</div>
+                <p id="generalOccupationNote"></p>
+                <dl class="occupation-code-list">
+                  <div><dt>대분류 코드</dt><dd id="occupationMajor"></dd></div>
+                  <div><dt>중분류 코드</dt><dd id="occupationMiddle"></dd></div>
+                  <div><dt>소분류 코드</dt><dd id="occupationSmall"></dd></div>
+                  <div><dt>세분류 코드</dt><dd id="occupationSub"></dd></div>
+                  <div><dt>세세분류 코드</dt><dd id="occupationDetail"></dd></div>
+                </dl>
+              </div>
             </div>
           </div>
 
           <div style="margin-top:20px;">
             <button class="primary" type="button" onclick="navigateToStep('career')">다시 입력하고 비교하기</button>
+            <button class="secondary" type="button" onclick="navigateToStep('start')" style="width:100%;margin-top:10px">홈으로 돌아가기</button>
           </div>
         </section>
 
@@ -261,6 +288,20 @@
   </div>
 </div>
 
+  <div class="occupation-modal" id="occupationModal" hidden role="dialog" aria-modal="true" aria-labelledby="occupationModalTitle">
+    <div class="occupation-panel">
+      <div class="occupation-modal-head">
+        <div><div class="kicker" id="occupationModalKicker">CAREER DATABASE</div><h2 id="occupationModalTitle">직업 목록에서 선택하기</h2><p id="occupationModalDesc">직업 세세분류 데이터 537개를 검색할 수 있어요.</p></div>
+        <button class="login-close" type="button" onclick="closeOccupationBrowser()" aria-label="닫기">×</button>
+      </div>
+      <label class="occupation-search-label" for="occupationSearch">직업명 검색</label>
+      <input id="occupationSearch" type="search" placeholder="예: 데이터 분석가, 행정사, 개발자">
+      <div class="occupation-results-meta" id="occupationResultsMeta">전체 537개 직업</div>
+      <div class="occupation-results" id="occupationResults" role="listbox" aria-label="직업 목록"></div>
+      <div class="occupation-modal-foot"><span>직업을 선택하면 비교 입력 화면으로 이동합니다.</span><button class="secondary" type="button" onclick="closeOccupationBrowser()">닫기</button></div>
+    </div>
+  </div>
+
   <div class="login-modal" id="loginModal" hidden role="dialog" aria-modal="true" aria-labelledby="loginTitle">
     <div class="login-panel">
       <button class="login-close" type="button" onclick="closeLogin()" aria-label="닫기">×</button>
@@ -275,94 +316,103 @@
       <input id="loginEmail" type="email" placeholder="example@email.com" autocomplete="email">
       <div id="loginPasswordGroup">
         <label for="loginPassword">비밀번호</label>
-        <input id="loginPassword" type="password" placeholder="비밀번호 입력" autocomplete="current-password">
+        <input id="loginPassword" type="password" placeholder="비밀번호 입력 (6자 이상)" autocomplete="current-password">
       </div>
       <button class="primary" id="loginSubmitButton" type="button" onclick="showLoginNotice()">로그인</button>
       <button class="secondary" id="switchAuthMode" type="button" onclick="toggleAuthMode()" style="width:100%; margin-top:10px;">회원가입</button>
-      <p class="login-disclaimer" id="loginNotice">로그인은 현재 프로토타입에서 지원하지 않습니다. 회원가입을 통해 이름과 이메일을 저장할 수 있습니다.</p>
+      <p class="login-disclaimer" id="loginNotice">Firebase 설정을 완료한 경우 이메일과 비밀번호로 회원가입 및 로그인할 수 있습니다. 설정 전에는 인증 기능을 사용할 수 없습니다.</p>
     </div>
   </div>
 
 <script src="js/main.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script>
-  // Google Apps Script 웹 앱 배포 URL
-  const GOOGLE_SHEETS_WEB_APP_URL =
-    'https://script.google.com/macros/s/AKfycbxlx9Oo0RUDcLzJpIKRIFmsFTURaP6qo5-GARLhtejIAERHInLdtQO1EFfRcduHTn1N-Q/exec';
-
+  // Firebase 콘솔에서 발급받은 프로젝트 설정값을 아래에 입력하세요.
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID",
+    appId: "YOUR_APP_ID"
+  };
   let authMode = 'login';
+  let firebaseReady = false;
+  try {
+    if (firebaseConfig.apiKey !== 'YOUR_API_KEY') {
+      firebase.initializeApp(firebaseConfig);
+      firebaseReady = true;
+      firebase.auth().onAuthStateChanged(user => {
+        window.jinrofitUser = user || null;
+        const label = document.querySelector('.login-button');
+        if (label) label.textContent = user ? '로그아웃' : '로그인';
+        const name = document.getElementById('mypageUserName');
+        const state = document.getElementById('mypageLoginState');
+        if (name) name.textContent = user ? (user.displayName || user.email || '회원') : '나의 진로핏';
+        if (state) state.textContent = user ? (user.email || '로그인 상태') : '로그인 없이 이용 중';
+      });
+    }
+  } catch (e) { console.error('Firebase 초기화 실패', e); }
 
   function toggleAuthMode() {
     authMode = authMode === 'login' ? 'join' : 'login';
-
     const isJoin = authMode === 'join';
     document.getElementById('loginTitle').textContent = isJoin ? '회원가입' : '로그인';
     document.getElementById('loginNameGroup').hidden = !isJoin;
-    document.getElementById('loginPasswordGroup').hidden = isJoin;
+    document.getElementById('loginPasswordGroup').hidden = false;
     document.getElementById('loginSubmitButton').textContent = isJoin ? '회원가입하기' : '로그인';
     document.getElementById('switchAuthMode').textContent = isJoin ? '로그인으로 돌아가기' : '회원가입';
+    document.getElementById('loginPassword').autocomplete = isJoin ? 'new-password' : 'current-password';
     document.getElementById('loginNotice').textContent = isJoin
-      ? '이름과 이메일을 구글 시트에 저장합니다. 비밀번호는 수집하거나 저장하지 않습니다.'
-      : '현재 프로토타입에는 실제 로그인 인증 기능이 연결되어 있지 않습니다.';
+      ? '이름, 이메일, 비밀번호를 입력하세요. (비밀번호는 Firebase에서 안전하게 관리됩니다.)'
+      : '이메일과 비밀번호로 로그인하세요.';
   }
-
-  // 실제 로그인 인증 서버는 아직 연결되지 않았으므로 로그인은 안내만 표시
-  function showLoginNotice() {
-    if (authMode !== 'join') {
-      document.getElementById('loginNotice').textContent =
-        '실제 로그인 인증은 아직 연결되어 있지 않습니다. 회원가입은 이용할 수 있습니다.';
-      return;
-    }
-    submitJoinForm();
-  }
-
+  function showLoginNotice() { authMode === 'join' ? submitJoinForm() : submitLoginForm(); }
   async function submitJoinForm() {
-    const nameInput = document.getElementById('joinName');
+    const name = document.getElementById('joinName').value.trim();
     const emailInput = document.getElementById('loginEmail');
-    const notice = document.getElementById('loginNotice');
-    const submitButton = document.getElementById('loginSubmitButton');
-
-    const name = nameInput.value.trim();
     const email = emailInput.value.trim().toLowerCase();
-
-    if (!name) {
-      notice.textContent = '이름을 입력해 주세요.';
-      nameInput.focus();
-      return;
-    }
-
-    if (!email || !emailInput.checkValidity()) {
-      notice.textContent = '올바른 이메일 주소를 입력해 주세요.';
-      emailInput.focus();
-      return;
-    }
-
-    submitButton.disabled = true;
-    submitButton.textContent = '전송 중...';
-    notice.textContent = '회원 정보를 전송하고 있습니다.';
-
+    const password = document.getElementById('loginPassword').value;
+    const notice = document.getElementById('loginNotice');
+    const button = document.getElementById('loginSubmitButton');
+    if (!firebaseReady) { notice.textContent = 'Firebase 설정이 필요합니다. README의 Firebase 설정 안내를 먼저 완료하세요.'; return; }
+    if (!name) { notice.textContent = '이름을 입력해 주세요.'; document.getElementById('joinName').focus(); return; }
+    if (!email || !emailInput.checkValidity()) { notice.textContent = '올바른 이메일 주소를 입력해 주세요.'; emailInput.focus(); return; }
+    if (password.length < 6) { notice.textContent = '비밀번호는 6자 이상 입력해 주세요.'; document.getElementById('loginPassword').focus(); return; }
+    button.disabled = true; button.textContent = '가입 중...';
     try {
-      // text/plain으로 JSON 본문을 전달해 CORS 사전 요청을 피합니다.
-      // no-cors 모드에서는 Apps Script의 응답 내용을 브라우저에서 읽을 수 없습니다.
-      await fetch(GOOGLE_SHEETS_WEB_APP_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ name: name, email: email })
-      });
-
-      notice.textContent =
-        '가입 요청을 전송했습니다. 구글 시트의 join 탭에서 저장 여부를 확인해 주세요.';
-      nameInput.value = '';
-      emailInput.value = '';
-    } catch (error) {
-      console.error('Google Sheets 전송 오류:', error);
-      notice.textContent =
-        '전송에 실패했습니다. 인터넷 연결과 Apps Script 웹 앱 배포 설정을 확인해 주세요.';
-    } finally {
-      submitButton.disabled = false;
-      submitButton.textContent = '회원가입하기';
-    }
+      const cred = await firebase.auth().createUserWithEmailAndPassword(email, password);
+      await cred.user.updateProfile({ displayName: name });
+      notice.textContent = '회원가입 및 로그인 완료!';
+      document.getElementById('joinName').value = ''; emailInput.value = ''; document.getElementById('loginPassword').value = '';
+      closeLogin();
+    } catch (err) { notice.textContent = authErrorMessage(err.code); }
+    finally { button.disabled = false; button.textContent = '회원가입하기'; }
   }
+  async function submitLoginForm() {
+    const emailInput = document.getElementById('loginEmail');
+    const email = emailInput.value.trim().toLowerCase();
+    const password = document.getElementById('loginPassword').value;
+    const notice = document.getElementById('loginNotice');
+    const button = document.getElementById('loginSubmitButton');
+    if (!firebaseReady) { notice.textContent = 'Firebase 설정이 필요합니다. README의 Firebase 설정 안내를 먼저 완료하세요.'; return; }
+    if (!email || !emailInput.checkValidity() || !password) { notice.textContent = '이메일과 비밀번호를 올바르게 입력해 주세요.'; return; }
+    button.disabled = true; button.textContent = '로그인 중...';
+    try { await firebase.auth().signInWithEmailAndPassword(email, password); notice.textContent = '로그인 완료!'; closeLogin(); }
+    catch (err) { notice.textContent = authErrorMessage(err.code); }
+    finally { button.disabled = false; button.textContent = '로그인'; }
+  }
+  function authErrorMessage(code) {
+    const map = { 'auth/email-already-in-use':'이미 가입된 이메일입니다. 로그인해 주세요.', 'auth/invalid-email':'이메일 형식이 올바르지 않습니다.', 'auth/weak-password':'비밀번호는 6자 이상이어야 합니다.', 'auth/invalid-credential':'이메일 또는 비밀번호가 올바르지 않습니다.', 'auth/user-not-found':'가입된 계정을 찾을 수 없습니다.', 'auth/wrong-password':'비밀번호가 올바르지 않습니다.', 'auth/too-many-requests':'시도 횟수가 많습니다. 잠시 후 다시 시도하세요.' };
+    return map[code] || '요청을 처리하지 못했습니다. 입력 내용을 확인한 후 다시 시도하세요.';
+  }
+  async function openLogin() {
+    if (firebaseReady && firebase.auth().currentUser) {
+      if (confirm('로그아웃하시겠습니까?')) await firebase.auth().signOut();
+      return;
+    }
+    document.getElementById('loginModal').hidden = false;
+  }
+  function closeLogin() { const modal = document.getElementById('loginModal'); if (modal) modal.hidden = true; }
 </script>
 </body>
 </html>
