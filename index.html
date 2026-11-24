@@ -320,38 +320,16 @@ body{background:#e9eef7!important}.phone-device{background:#fff!important;box-sh
       </div>
       <button class="primary" id="loginSubmitButton" type="button" onclick="showLoginNotice()">로그인</button>
       <button class="secondary" id="switchAuthMode" type="button" onclick="toggleAuthMode()" style="width:100%; margin-top:10px;">회원가입</button>
-      <p class="login-disclaimer" id="loginNotice">Firebase 설정을 완료한 경우 이메일과 비밀번호로 회원가입 및 로그인할 수 있습니다. 설정 전에는 인증 기능을 사용할 수 없습니다.</p>
+      <p class="login-disclaimer" id="loginNotice">회원가입 정보는 Google Sheets의 join 시트에 저장됩니다. 로그인 기능은 아직 연결되지 않았습니다.</p>
     </div>
   </div>
 
 <script src="js/main.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script>
-  // Firebase 콘솔에서 발급받은 프로젝트 설정값을 아래에 입력하세요.
-  const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    appId: "YOUR_APP_ID"
-  };
+  // Google Apps Script 웹 앱 주소
+  const JOIN_API_URL = "https://script.google.com/macros/s/AKfycbz95D2aJy3E-y5g5qUvKMrQTYhUuNkBHDYjMSPG-ch1dyPcBSPZHKxJohJYoXEE8HynGg/exec";
+
   let authMode = 'login';
-  let firebaseReady = false;
-  try {
-    if (firebaseConfig.apiKey !== 'YOUR_API_KEY') {
-      firebase.initializeApp(firebaseConfig);
-      firebaseReady = true;
-      firebase.auth().onAuthStateChanged(user => {
-        window.jinrofitUser = user || null;
-        const label = document.querySelector('.login-button');
-        if (label) label.textContent = user ? '로그아웃' : '로그인';
-        const name = document.getElementById('mypageUserName');
-        const state = document.getElementById('mypageLoginState');
-        if (name) name.textContent = user ? (user.displayName || user.email || '회원') : '나의 진로핏';
-        if (state) state.textContent = user ? (user.email || '로그인 상태') : '로그인 없이 이용 중';
-      });
-    }
-  } catch (e) { console.error('Firebase 초기화 실패', e); }
 
   function toggleAuthMode() {
     authMode = authMode === 'login' ? 'join' : 'login';
@@ -363,56 +341,85 @@ body{background:#e9eef7!important}.phone-device{background:#fff!important;box-sh
     document.getElementById('switchAuthMode').textContent = isJoin ? '로그인으로 돌아가기' : '회원가입';
     document.getElementById('loginPassword').autocomplete = isJoin ? 'new-password' : 'current-password';
     document.getElementById('loginNotice').textContent = isJoin
-      ? '이름, 이메일, 비밀번호를 입력하세요. (비밀번호는 Firebase에서 안전하게 관리됩니다.)'
-      : '이메일과 비밀번호로 로그인하세요.';
+      ? '이름, 이메일, 비밀번호를 입력하면 join 시트에 저장됩니다.'
+      : '현재 로그인 기능은 아직 연결되지 않았습니다.';
   }
-  function showLoginNotice() { authMode === 'join' ? submitJoinForm() : submitLoginForm(); }
+
+  function showLoginNotice() {
+    if (authMode === 'join') {
+      submitJoinForm();
+    } else {
+      document.getElementById('loginNotice').textContent =
+        '현재는 회원가입 정보 저장만 연결되어 있습니다. 로그인 기능을 사용하려면 별도의 인증 기능이 필요합니다.';
+    }
+  }
+
   async function submitJoinForm() {
-    const name = document.getElementById('joinName').value.trim();
+    const nameInput = document.getElementById('joinName');
     const emailInput = document.getElementById('loginEmail');
+    const passwordInput = document.getElementById('loginPassword');
+    const name = nameInput.value.trim();
     const email = emailInput.value.trim().toLowerCase();
-    const password = document.getElementById('loginPassword').value;
+    const password = passwordInput.value;
     const notice = document.getElementById('loginNotice');
     const button = document.getElementById('loginSubmitButton');
-    if (!firebaseReady) { notice.textContent = 'Firebase 설정이 필요합니다. README의 Firebase 설정 안내를 먼저 완료하세요.'; return; }
-    if (!name) { notice.textContent = '이름을 입력해 주세요.'; document.getElementById('joinName').focus(); return; }
-    if (!email || !emailInput.checkValidity()) { notice.textContent = '올바른 이메일 주소를 입력해 주세요.'; emailInput.focus(); return; }
-    if (password.length < 6) { notice.textContent = '비밀번호는 6자 이상 입력해 주세요.'; document.getElementById('loginPassword').focus(); return; }
-    button.disabled = true; button.textContent = '가입 중...';
-    try {
-      const cred = await firebase.auth().createUserWithEmailAndPassword(email, password);
-      await cred.user.updateProfile({ displayName: name });
-      notice.textContent = '회원가입 및 로그인 완료!';
-      document.getElementById('joinName').value = ''; emailInput.value = ''; document.getElementById('loginPassword').value = '';
-      closeLogin();
-    } catch (err) { notice.textContent = authErrorMessage(err.code); }
-    finally { button.disabled = false; button.textContent = '회원가입하기'; }
-  }
-  async function submitLoginForm() {
-    const emailInput = document.getElementById('loginEmail');
-    const email = emailInput.value.trim().toLowerCase();
-    const password = document.getElementById('loginPassword').value;
-    const notice = document.getElementById('loginNotice');
-    const button = document.getElementById('loginSubmitButton');
-    if (!firebaseReady) { notice.textContent = 'Firebase 설정이 필요합니다. README의 Firebase 설정 안내를 먼저 완료하세요.'; return; }
-    if (!email || !emailInput.checkValidity() || !password) { notice.textContent = '이메일과 비밀번호를 올바르게 입력해 주세요.'; return; }
-    button.disabled = true; button.textContent = '로그인 중...';
-    try { await firebase.auth().signInWithEmailAndPassword(email, password); notice.textContent = '로그인 완료!'; closeLogin(); }
-    catch (err) { notice.textContent = authErrorMessage(err.code); }
-    finally { button.disabled = false; button.textContent = '로그인'; }
-  }
-  function authErrorMessage(code) {
-    const map = { 'auth/email-already-in-use':'이미 가입된 이메일입니다. 로그인해 주세요.', 'auth/invalid-email':'이메일 형식이 올바르지 않습니다.', 'auth/weak-password':'비밀번호는 6자 이상이어야 합니다.', 'auth/invalid-credential':'이메일 또는 비밀번호가 올바르지 않습니다.', 'auth/user-not-found':'가입된 계정을 찾을 수 없습니다.', 'auth/wrong-password':'비밀번호가 올바르지 않습니다.', 'auth/too-many-requests':'시도 횟수가 많습니다. 잠시 후 다시 시도하세요.' };
-    return map[code] || '요청을 처리하지 못했습니다. 입력 내용을 확인한 후 다시 시도하세요.';
-  }
-  async function openLogin() {
-    if (firebaseReady && firebase.auth().currentUser) {
-      if (confirm('로그아웃하시겠습니까?')) await firebase.auth().signOut();
+
+    if (!name) {
+      notice.textContent = '이름을 입력해 주세요.';
+      nameInput.focus();
       return;
     }
+    if (!email || !emailInput.checkValidity()) {
+      notice.textContent = '올바른 이메일 주소를 입력해 주세요.';
+      emailInput.focus();
+      return;
+    }
+    if (password.length < 6) {
+      notice.textContent = '비밀번호는 6자 이상 입력해 주세요.';
+      passwordInput.focus();
+      return;
+    }
+
+    button.disabled = true;
+    button.textContent = '가입 중...';
+    notice.textContent = '회원가입 정보를 전송하고 있습니다.';
+
+    try {
+      const response = await fetch(JOIN_API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain;charset=utf-8'
+        },
+        body: JSON.stringify({ name, email, password })
+      });
+
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.message || '회원가입 정보를 저장하지 못했습니다.');
+      }
+
+      notice.textContent = '회원가입 정보가 구글 시트에 저장되었습니다.';
+      nameInput.value = '';
+      emailInput.value = '';
+      passwordInput.value = '';
+    } catch (error) {
+      console.error('Google Sheets 회원가입 오류:', error);
+      notice.textContent = '전송 결과를 확인하지 못했습니다. Apps Script 배포 권한과 웹 앱 응답(CORS)을 확인한 뒤 join 시트에 저장 여부를 확인해 주세요.';
+    } finally {
+      button.disabled = false;
+      button.textContent = '회원가입하기';
+    }
+  }
+
+  function openLogin() {
     document.getElementById('loginModal').hidden = false;
   }
-  function closeLogin() { const modal = document.getElementById('loginModal'); if (modal) modal.hidden = true; }
+
+  function closeLogin() {
+    const modal = document.getElementById('loginModal');
+    if (modal) modal.hidden = true;
+  }
 </script>
 </body>
 </html>
