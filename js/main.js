@@ -79,7 +79,9 @@ const DATA_PATHS = {
   jobs: 'data/job_subclassifications.json',
   study: 'data/2025_new_jobs_study_summary.json',
   occupations: 'data/occupations_537.json',
-  fallback: 'data/data-fallback.js'
+  fallback: 'data/data-fallback.js',
+  report: 'data/new_jobs_report.json',          // 2025 신직업 연구(2차 연도) 부록 1 직업별 해설
+  reportFallback: 'data/new-jobs-report.js'
 };
 
 let jobData = [];        // 직업 목록
@@ -121,6 +123,8 @@ async function loadJobData() {
   let rawStudy = [];
   let rawOccupations = [];
   try {
+    // 단일 파일 버전: 데이터가 페이지 안에 내장되어 있으면 그대로 사용
+    if (window.JINROFIT_FALLBACK) throw new Error('embedded data');
     // 파일을 더블클릭해서 열면(file://) 브라우저가 fetch를 막으므로 대체 파일 사용
     if (location.protocol === 'file:') throw new Error('file protocol');
     [rawJobs, rawStudy, rawOccupations] = await Promise.all([
@@ -130,7 +134,7 @@ async function loadJobData() {
     ]);
   } catch (error) {
     try {
-      await loadScript(DATA_PATHS.fallback);
+      if (!window.JINROFIT_FALLBACK) await loadScript(DATA_PATHS.fallback);
       rawJobs = window.JINROFIT_FALLBACK.jobs;
       rawStudy = window.JINROFIT_FALLBACK.study;
       rawOccupations = window.JINROFIT_FALLBACK.occupations || [];
@@ -244,6 +248,17 @@ function getCategoryItems(category) {
 
 let activeCategory = null; // null이면 전체 직업 목록
 
+function setOccupationFoot(text) {
+  const foot = document.getElementById('occupationModalFootText');
+  if (foot) foot.textContent = text;
+}
+const NEW_JOBS_KEY = '__new_jobs__';
+
+function getActivePool() {
+  if (activeCategory === NEW_JOBS_KEY) return jobData.map(job => ({ name: job.name, group: `${job.domain} · ${job.group}`, isNew: true }));
+  return activeCategory ? getCategoryItems(activeCategory) : occupationData;
+}
+
 // 홈의 분야 버튼: 해당 분야 직업 목록 창 열기
 async function openCategoryBrowser(category) {
   if (jobDataReady) await jobDataReady;
@@ -252,6 +267,7 @@ async function openCategoryBrowser(category) {
   activeCategory = category;
   const items = getCategoryItems(category);
   const newCount = items.filter(item => item.isNew).length;
+  setOccupationFoot('신직업은 눌러서 관련 내용을 볼 수 있고, 일반 직업은 선택하면 비교 입력 화면으로 이동합니다.');
   document.getElementById('occupationModalKicker').textContent = 'CAREER FIELD';
   document.getElementById('occupationModalTitle').textContent = `${category} 직업`;
   document.getElementById('occupationModalDesc').textContent =
@@ -271,6 +287,7 @@ async function openOccupationBrowser() {
   const modal = document.getElementById('occupationModal');
   if (!modal) { navigateToStep('career'); return; }
   activeCategory = null;
+  setOccupationFoot('직업을 선택하면 비교 입력 화면으로 이동합니다.');
   document.getElementById('occupationModalKicker').textContent = 'CAREER DATABASE';
   document.getElementById('occupationModalTitle').textContent = '직업 목록에서 선택하기';
   document.getElementById('occupationModalDesc').textContent = '직업 세세분류 데이터 537개를 검색할 수 있어요.';
@@ -284,16 +301,18 @@ async function openOccupationBrowser() {
 }
 
 function closeOccupationBrowser() {
+  setOccupationView('list');
   const modal = document.getElementById('occupationModal');
   if (modal) modal.hidden = true;
 }
 
 function renderOccupationBrowser(query) {
+  setOccupationView('list');
   const list = document.getElementById('occupationResults');
   const meta = document.getElementById('occupationResultsMeta');
   if (!list || !meta) return;
   const key = normalizeName(query);
-  const pool = activeCategory ? getCategoryItems(activeCategory) : occupationData;
+  const pool = getActivePool();
   const matches = pool.filter(item => !key || normalizeName(item.name).includes(key));
   meta.textContent = `검색 결과 ${matches.length}개 / 전체 ${pool.length}개`;
   list.textContent = '';
@@ -317,12 +336,135 @@ function renderOccupationBrowser(query) {
     if (item.isNew) button.classList.add('is-new');
     button.append(name, code);
     button.addEventListener('click', () => {
+      if (item.isNew) { openNewJobDetail(item.name); return; }
       document.getElementById('career').value = item.name;
       closeOccupationBrowser();
       navigateToStep('career');
     });
     list.appendChild(button);
   });
+}
+
+
+/* ============================================================
+   신직업 상세 보기 (2025 신직업 연구 2차 연도 보고서 부록 1)
+   - data/new_jobs_report.json : 직업별 해설 (직업 생성 배경, 수행 직무, 해외·국내 현황, 활성화 제언)
+   - file:// 로 열면 fetch가 막히므로 data/new-jobs-report.js 로 대체
+   ============================================================ */
+let reportData = null;
+
+async function loadReportData() {
+  if (reportData) return reportData;
+  try {
+    if (window.JINROFIT_REPORT) { reportData = window.JINROFIT_REPORT; return reportData; }
+    if (location.protocol === 'file:') throw new Error('file protocol');
+    reportData = await fetchJson(DATA_PATHS.report);
+  } catch (error) {
+    try {
+      await loadScript(DATA_PATHS.reportFallback);
+      reportData = window.JINROFIT_REPORT || null;
+    } catch (fallbackError) {
+      console.warn('신직업 해설 데이터를 불러오지 못했습니다.', error);
+      reportData = null;
+    }
+  }
+  return reportData;
+}
+
+// 직업 목록 화면 / 신직업 상세 화면 전환
+function setOccupationView(view) {
+  const panel = document.querySelector('#occupationModal .occupation-panel');
+  if (panel) panel.classList.toggle('is-detail', view === 'detail');
+}
+
+function makeEl(tag, className, text) {
+  const el = document.createElement(tag);
+  if (className) el.className = className;
+  if (text !== undefined) el.textContent = text;
+  return el;
+}
+
+function renderReportBlocks(container, blocks) {
+  let list = null;
+  blocks.forEach(block => {
+    if (block.k === 'b') {
+      if (!list) { list = makeEl('ul', 'jd-list'); container.appendChild(list); }
+      list.appendChild(makeEl('li', '', block.t));
+      return;
+    }
+    list = null;
+    container.appendChild(makeEl('p', block.k === 'h' ? 'jd-h' : 'jd-p', block.t));
+  });
+}
+
+async function openNewJobDetail(name) {
+  const box = document.getElementById('jobDetail');
+  if (!box) return;
+  const job = jobData.find(item => item.name === name);
+  setOccupationView('detail');
+  box.textContent = '';
+  const back = makeEl('button', 'jd-back', '← 목록으로');
+  back.type = 'button';
+  back.addEventListener('click', () => setOccupationView('list'));
+  box.appendChild(back);
+  if (job) {
+    box.appendChild(makeEl('div', 'jd-kicker', `${job.domain} · ${job.group}`));
+    box.appendChild(makeEl('h3', 'jd-name', job.name));
+    const overview = makeEl('div', 'jd-overview');
+    overview.append(makeEl('strong', '', '직무 개요'), makeEl('p', '', job.overview || ''));
+    box.appendChild(overview);
+  } else {
+    box.appendChild(makeEl('h3', 'jd-name', name));
+  }
+  const body = makeEl('div', 'jd-body');
+  body.appendChild(makeEl('p', 'jd-loading', '보고서 내용을 불러오는 중이에요…'));
+  box.appendChild(body);
+  box.scrollTop = 0;
+
+  const report = await loadReportData();
+  const entry = report && report.jobs ? report.jobs[name] : null;
+  body.textContent = '';
+  if (!entry) {
+    body.appendChild(makeEl('p', 'jd-loading', '상세 해설 데이터를 불러오지 못했어요. 로컬 서버(예: python -m http.server)로 열거나 data 폴더 파일을 확인해 주세요.'));
+  } else {
+    entry.sections.forEach((section, index) => {
+      const details = makeEl('details', 'jd-sec');
+      if (section.title === '수행 직무' || (index === 0 && !entry.sections.some(s => s.title === '수행 직무'))) details.open = true;
+      details.appendChild(makeEl('summary', '', section.title));
+      const content = makeEl('div', 'jd-sec-body');
+      renderReportBlocks(content, section.blocks);
+      details.appendChild(content);
+      body.appendChild(details);
+    });
+    const meta = report.meta || {};
+    const pages = entry.pages ? ` pp.${entry.pages[0]}–${entry.pages[1]}` : '';
+    body.appendChild(makeEl('p', 'jd-source', `출처: ${meta.publisher || ''} 「${meta.title || ''}」 ${meta.section || ''},${pages}. PDF를 텍스트로 변환한 원문을 문단 단위로 정리한 것이라 표·그림은 일부 생략되었어요.`));
+  }
+  const actions = makeEl('div', 'jd-actions');
+  const go = makeEl('button', 'primary', '이 직업으로 비교하기');
+  go.type = 'button';
+  go.addEventListener('click', () => {
+    document.getElementById('career').value = name;
+    closeOccupationBrowser();
+    navigateToStep('career');
+  });
+  actions.appendChild(go);
+  box.appendChild(actions);
+}
+
+// 홈의 '요즘 떠오르는 신직업': 2025 신직업 41개 목록 창 (별도 new-jobs.html 없이 동작)
+async function openNewJobsBrowser() {
+  if (jobDataReady) await jobDataReady;
+  const modal = document.getElementById('occupationModal');
+  if (!modal) { navigateToStep('career'); return; }
+  activeCategory = NEW_JOBS_KEY;
+  setOccupationFoot('직업을 누르면 보고서의 관련 내용을 볼 수 있어요.');
+  document.getElementById('occupationModalKicker').textContent = 'NEW JOBS 2025';
+  document.getElementById('occupationModalTitle').textContent = '요즘 떠오르는 신직업';
+  document.getElementById('occupationModalDesc').textContent = `2025 신성장 산업 신직업 ${jobData.length}개를 확인할 수 있어요.`;
+  modal.hidden = false;
+  const search = document.getElementById('occupationSearch');
+  if (search) { search.value = ''; renderOccupationBrowser(''); setTimeout(() => search.focus(), 30); }
 }
 
 function openNewJobsWindow() {

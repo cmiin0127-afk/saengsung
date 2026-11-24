@@ -44,7 +44,7 @@ body{background:#e9eef7!important}.phone-device{background:#fff!important;box-sh
           <div class="home-feature-grid">
             <button class="feature-tile" type="button" onclick="openOccupationBrowser()"><span class="feature-icon">⌕</span><strong>직업 정보 탐색</strong><small>관심 있는 직업의 실제 업무를 확인해요</small></button>
             <button class="feature-tile" type="button" onclick="navigateToStep('career')"><span class="feature-icon">⇄</span><strong>생각과 현실 비교</strong><small>내 예상과 직업정보를 나란히 살펴봐요</small></button>
-            <button class="feature-tile" type="button" onclick="openNewJobsWindow()"><span class="feature-icon">✦</span><strong>요즘 떠오르는 신직업</strong><small>2025 신성장 산업 신직업 41개를 살펴봐요</small></button>
+            <button class="feature-tile" type="button" onclick="openNewJobsBrowser()"><span class="feature-icon">✦</span><strong>요즘 떠오르는 신직업</strong><small>2025 신성장 산업 신직업 41개를 살펴봐요</small></button>
           </div>
           <div class="home-section">
             <div class="home-section-heading"><strong>직업 분야 탐색</strong><span>EXPLORE</span></div>
@@ -74,7 +74,7 @@ body{background:#e9eef7!important}.phone-device{background:#fff!important;box-sh
           <div class="field">
             <label for="career">희망 직업명 <span class="required">필수</span></label>
             <div class="combo">
-              <input id="career" name="career" type="text" placeholder="예: 인공지능(AI) 콘텐츠 크리에이터" autocomplete="off" placeholder="예: 인공지능(AI) 콘텐츠 크리에이터" role="combobox" aria-expanded="false" aria-controls="jobSuggest" aria-autocomplete="list">
+              <input id="career" name="career" type="text" placeholder="예: 인공지능(AI) 콘텐츠 크리에이터" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="jobSuggest" aria-autocomplete="list">
               <div class="job-suggest" id="jobSuggest" role="listbox" aria-label="신직업 목록" hidden></div>
             </div>
           </div>
@@ -298,7 +298,8 @@ body{background:#e9eef7!important}.phone-device{background:#fff!important;box-sh
       <input id="occupationSearch" type="search" placeholder="예: 데이터 분석가, 행정사, 개발자">
       <div class="occupation-results-meta" id="occupationResultsMeta">전체 537개 직업</div>
       <div class="occupation-results" id="occupationResults" role="listbox" aria-label="직업 목록"></div>
-      <div class="occupation-modal-foot"><span>직업을 선택하면 비교 입력 화면으로 이동합니다.</span><button class="secondary" type="button" onclick="closeOccupationBrowser()">닫기</button></div>
+      <div class="job-detail" id="jobDetail"></div>
+      <div class="occupation-modal-foot"><span id="occupationModalFootText">직업을 선택하면 비교 입력 화면으로 이동합니다.</span><button class="secondary" type="button" onclick="closeOccupationBrowser()">닫기</button></div>
     </div>
   </div>
 

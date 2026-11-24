@@ -423,3 +423,34 @@ main { flex: 1 0 auto; display: flex; flex-direction: column; width: 100%; }
 .occupation-option.is-new { border-color:#c9d8f7; background:#f5f8ff; }
 .occupation-option.is-new small { color:#3565ce; font-weight:800; }
 .career-category-grid button { cursor:pointer; }
+
+/* 신직업 상세 보기 */
+.occupation-panel.is-detail .occupation-search-label,
+.occupation-panel.is-detail #occupationSearch,
+.occupation-panel.is-detail .occupation-results-meta,
+.occupation-panel.is-detail .occupation-results,
+.occupation-panel.is-detail #occupationModalDesc { display:none; }
+.job-detail { display:none; flex-direction:column; gap:12px; flex:1; min-height:0; overflow:auto; padding-right:2px; }
+.occupation-panel.is-detail .job-detail { display:flex; }
+.jd-back { align-self:flex-start; border:1px solid #dce6fa; background:#f6f8ff; color:#3565ce; border-radius:14px; padding:7px 12px; font-size:12px; font-weight:800; cursor:pointer; }
+.jd-kicker { color:#3565ce; font-size:11px; font-weight:800; }
+.jd-name { margin:0; color:#203654; font-size:20px; line-height:1.4; letter-spacing:-.4px; }
+.jd-overview { background:#f4f7fd; border:1px solid #e2e9f5; border-radius:14px; padding:13px 14px; }
+.jd-overview strong { display:block; margin-bottom:6px; color:#315fce; font-size:11px; }
+.jd-overview p { margin:0; color:#314665; font-size:13px; line-height:1.7; }
+.jd-body { display:flex; flex-direction:column; gap:8px; }
+.jd-sec { border:1px solid #e5ebf5; border-radius:14px; background:#fff; overflow:hidden; }
+.jd-sec summary { cursor:pointer; padding:13px 14px; font-size:13px; font-weight:800; color:#243a5b; list-style:none; display:flex; justify-content:space-between; align-items:center; }
+.jd-sec summary::-webkit-details-marker { display:none; }
+.jd-sec summary::after { content:'+'; color:#7485a2; font-size:16px; font-weight:700; }
+.jd-sec[open] summary::after { content:'–'; }
+.jd-sec[open] summary { border-bottom:1px solid #eef2f9; background:#fafcff; }
+.jd-sec-body { padding:12px 14px 14px; max-height:46vh; overflow:auto; }
+.jd-p { margin:0 0 9px; color:#314665; font-size:12.5px; line-height:1.75; word-break:keep-all; overflow-wrap:anywhere; }
+.jd-h { margin:12px 0 6px; color:#203654; font-size:12.5px; font-weight:800; line-height:1.55; }
+.jd-list { margin:0 0 10px; padding-left:18px; color:#314665; font-size:12.5px; line-height:1.7; }
+.jd-list li { margin-bottom:4px; word-break:keep-all; overflow-wrap:anywhere; }
+.jd-source { margin:4px 0 0; color:#8795aa; font-size:10.5px; line-height:1.6; }
+.jd-loading { margin:0; color:#7485a2; font-size:12px; }
+.jd-actions { padding:4px 0 2px; }
+.jd-actions .primary { width:100%; }
