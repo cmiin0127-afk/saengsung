@@ -84,7 +84,7 @@ const DATA_PATHS = {
   reportFallback: 'data/new-jobs-report.js'
 };
 
-let jobData = [];        // 직업 목록
+let jobData = [];        // 신직업 41개 목록
 let domainOrder = [];    // 영역 표시 순서 (연구 요약 파일 기준)
 let studyInfo = null;    // 연구 요약 정보
 let occupationData = []; // 직업 세세분류 537개
@@ -116,6 +116,49 @@ async function fetchJson(path) {
   const response = await fetch(path);
   if (!response.ok) throw new Error(`${path} (${response.status})`);
   return response.json();
+}
+
+// 한국고용직업분류(KNOW) 대분류-중분류 코드별 직무 및 역량 표준 설명
+const KNOW_GROUP_DESC = {
+  '0-1': { label: '고위임원 및 기업고위직', task: '조직의 경영 목표와 전략을 수립하고 부서 간 주요 정책과 사업 운영을 총괄·조정합니다.', skill: '경영 전략 수립, 의사결정, 리더십, 조직 관리 역량이 요구됩니다.' },
+  '0-2': { label: '행정·경영·금융·보험 관리자', task: '행정, 인사, 기획, 총무 등 조직 운영과 지원 업무를 계획하고 실무 과정을 관리·감독합니다.', skill: '기획력, 문서 작성, 일정 및 자원 관리, 협업 소통 역량이 요구됩니다.' },
+  '0-3': { label: '금융·보험 관리자', task: '금융 상품 운용, 자금 조달, 리스크 관리 및 재무 관련 부서 업무를 기획·감독합니다.', skill: '재무 분석, 리스크 관리, 금융 규정 이해, 수치 데이터 분석 역량이 요구됩니다.' },
+  '1-1': { label: '인문·사회과학 연구직', task: '인문, 사회, 교육, 경제 등 분야의 자료를 조사·분석하고 연구 보고서와 정책 대안을 도출합니다.', skill: '자료 조사, 통계 및 문헌 분석, 논리적 글쓰기, 연구 설계 역량이 요구됩니다.' },
+  '1-2': { label: '자연·생명과학 연구직', task: '자연과학 및 생명과학 분야의 원리를 탐구하고 실험, 데이터 측정, 연구 개발을 수행합니다.', skill: '실험 설계, 과학적 분석력, 연구 장비 활용, 데이터 해석 역량이 요구됩니다.' },
+  '1-3': { label: '정보통신 연구개발직 및 공학기술직', task: '소프트웨어, 시스템, 네트워크, 데이터 등 IT 기술을 설계·개발하고 테스트 및 유지보수를 수행합니다.', skill: '프로그래밍, 시스템 설계, 문제 해결, 최신 디지털 기술 활용 역량이 요구됩니다.' },
+  '1-4': { label: '건설·채굴 연구개발직 및 공학기술직', task: '건축물, 토목 구조물, 플랜트 등의 설계, 시공 관리, 안전 점검 및 공정 개선을 수행합니다.', skill: '도면 설계 및 해석, 공정 관리, 안전 규정 준수, 현장 문제 해결 역량이 요구됩니다.' },
+  '1-5': { label: '제조 연구개발직 및 공학기술직', task: '기계, 전기, 전자, 화학 등 산업 제품의 기술을 연구·개발하고 생산 공정을 설계·개선합니다.', skill: '공학 설계, 품질 및 공정 분석, 기술 문서 작성, 협업 역량이 요구됩니다.' },
+  '2-1': { label: '교육 전문가', task: '학습자의 수준에 맞춰 교육 과정을 설계하고 강의, 학습 지도, 평가 및 상담을 수행합니다.', skill: '교수법, 의사소통, 학습자 이해, 교육 콘텐츠 기획 역량이 요구됩니다.' },
+  '2-2': { label: '법률 전문가', task: '법령 해석, 소송 수행, 법률 자문, 계약 검토 등 권리 보호와 분쟁 해결 업무를 담당합니다.', skill: '법률 지식, 논리적 사고, 문서 작성, 협상 및 분석 역량이 요구됩니다.' },
+  '2-3': { label: '사회복지·종교직', task: '취약계층 및 지역사회의 복지 수요를 파악해 상담, 지원 프로그램 운영, 자원 연계를 수행합니다.', skill: '공감 및 상담 능력, 사례 관리, 유관 기관 협력, 문제 해결 역량이 요구됩니다.' },
+  '2-4': { label: '경찰·소방·교도직', task: '공공의 안전과 질서를 유지하고 범죄 예방, 화재 진압, 구조·구급 및 교정 업무를 수행합니다.', skill: '위기 대응, 상황 판단력, 체력 및 안전 수칙 준수, 책임감이 요구됩니다.' },
+  '2-5': { label: '군인', task: '국가 방위와 안보를 위해 작전 수행, 부대 지휘·관리, 장비 운용 및 교육 훈련을 담당합니다.', skill: '지휘 통솔, 전략적 판단, 팀워크, 규율 준수 및 위기 대처 역량이 요구됩니다.' },
+  '3-0': { label: '보건·의료직', task: '환자의 건강 상태를 진단·치료·간호하거나 재활, 약제, 의료 검사 등 보건 의료 서비스를 제공합니다.', skill: '전문 의학·보건 지식, 정밀한 처치 능력, 환자 소통, 윤리 의식이 요구됩니다.' },
+  '4-1': { label: '문화·예술·디자인·방송직', task: '시각·제품·콘텐츠 디자인, 창작, 연출, 방송 제작 등을 통해 창의적 결과물을 기획·구현합니다.', skill: '창의적 기획력, 디자인 및 제작 툴 활용, 트렌드 분석, 표현 역량이 요구됩니다.' },
+  '4-2': { label: '스포츠·레크리에이션직', task: '체육 활동 지도, 경기 수행, 훈련 프로그램 설계 및 여가·레저 활동 운영을 담당합니다.', skill: '전문 운동 기능, 지도력, 안전 관리, 체력 및 자기 관리 역량이 요구됩니다.' },
+  '5-4': { label: '경호·경비직', task: '시설물 보안 유지, 출입 통제, 순찰, 신변 보호 등 안전사고와 범죄 예방 업무를 수행합니다.', skill: '주의력, 보안 장비 운용, 돌발 상황 대처, 성실성과 책임감이 요구됩니다.' },
+  '5-5': { label: '돌봄·보건·개인생활 서비스직', task: '아동, 노인, 환자 등의 일상생활과 건강 유지를 지원하고 맞춤형 돌봄·생활 서비스를 제공합니다.', skill: '배려심, 의사소통, 위생 및 안전 관리, 세심한 관찰 역량이 요구됩니다.' },
+  '6-1': { label: '영업·판매직', task: '고객과 시장을 분석해 제품·서비스를 제안하고 계약 체결, 매출 관리, 고객 관계 유지를 수행합니다.', skill: '설득 및 협상력, 시장 분석, 고객 응대, 목표 달성 추진력이 요구됩니다.' },
+  '7-0': { label: '운전·운송직', task: '여객 또는 화물을 안전하고 정확하게 목적지까지 수송하기 위해 차량·운송 장비를 운행·점검합니다.', skill: '안전 운행 능력, 경로 파악, 장비 점검, 시간 준수 및 집중력이 요구됩니다.' },
+  '8-1': { label: '식품가공·농림어업 생산직', task: '농축수산물의 생산과 식품 원료의 가공·품질 검사·포장 공정을 운영하고 관리합니다.', skill: '위생 및 품질 관리, 공정 설비 운용, 원료 특성 이해 역량이 요구됩니다.' },
+  '8-2': { label: '섬유·의복 생산직', task: '원단 가공, 패턴 제작, 재단·봉제 등 섬유 및 의복 제품의 제조 공정을 수행합니다.', skill: '제작 기술, 소재 이해, 정밀 작업 능력, 품질 검수 역량이 요구됩니다.' },
+  '8-3': { label: '화학·환경 생산직', task: '화학 제품 제조 설비를 운전하거나 수질·대기·폐기물 등 환경 오염 방지 시설을 운영·관리합니다.', skill: '안전 수칙 준수, 설비 제어, 환경·화학 공정 이해, 측정 분석 역량이 요구됩니다.' },
+  '8-4': { label: '정보통신·전기·전자 설치·정비·생산직', task: '전기·전자 기기 및 통신 설비를 제작·조립하고 현장에 설치·점검·보수하는 업무를 수행합니다.', skill: '회로 및 장비 이해, 계측기 활용, 고장 진단 및 수리, 안전 관리 역량이 요구됩니다.' },
+  '8-5': { label: '기계 설치·정비·생산직', task: '산업용 기계 및 장비를 제작·조립·설치하고 정기 점검과 정비를 통해 가동 상태를 유지합니다.', skill: '기계 구조 이해, 도면 판독, 정밀 가공 및 정비 기술, 안전 관리 역량이 요구됩니다.' },
+  '8-6': { label: '금속·재료 설치·정비·생산직', task: '금속 및 비금속 재료를 가공·용접·성형하여 구조물과 부품을 생산·정비합니다.', skill: '재료 특성 이해, 가공·용접 장비 운용, 정밀 측정, 현장 안전 역량이 요구됩니다.' },
+  '8-7': { label: '건설·채굴직', task: '건물과 토목 현장에서 기초 공사, 골조, 마감, 설비 시공 등 건설 작업을 수행합니다.', skill: '시공 기술, 설계 도면 이해, 현장 협업, 산업 안전 수칙 준수 역량이 요구됩니다.' },
+  '8-8': { label: '제조 단순직 및 기타 생산직', task: '생산 라인에서 부품 조립, 제품 선별, 포장, 적재 등 제조 지원 및 품질 확인 업무를 수행합니다.', skill: '작업 표준 준수, 집중력, 협업 태도, 현장 안전 관리 역량이 요구됩니다.' }
+};
+
+function buildGeneralJobOverview(item) {
+  const groupKey = `${item.major}-${item.middle}`;
+  const groupInfo = KNOW_GROUP_DESC[groupKey];
+  const category = categoryOfOccupation(item);
+  const fieldPrefix = category ? `[${category} 분야] ` : '';
+  if (groupInfo) {
+    return `${fieldPrefix}'${item.name}'(${groupInfo.label} 직군)은(는) ${groupInfo.task} 또한 ${groupInfo.skill}`;
+  }
+  return `${fieldPrefix}'${item.name}'은(는) 해당 전문 분야의 실무 절차를 계획·수행하고 결과물의 품질과 안전을 관리하는 직업입니다. 관련 직무 지식, 문제 해결 능력, 협업 및 의사소통 역량이 요구됩니다.`;
 }
 
 async function loadJobData() {
@@ -151,7 +194,8 @@ async function loadJobData() {
     group: item['직군'],
     name: item['직업'],
     overview: item['직무개요'],
-    variants: nameVariants(item['직업'])
+    variants: nameVariants(item['직업']),
+    isNewJob: true
   }));
 
   occupationData = (rawOccupations || []).map(item => ({
@@ -161,22 +205,43 @@ async function loadJobData() {
     small: item['KNOW직업소분류'],
     subclass: item['KNOW직업세분류'],
     detail: item['KNOW직업세세분류']
-  })).filter(item => item.name);
+  })).filter(item => item.name).map(item => {
+    const groupInfo = KNOW_GROUP_DESC[`${item.major}-${item.middle}`];
+    const category = categoryOfOccupation(item);
+    return {
+      ...item,
+      id: `know-${item.major}-${item.middle}-${item.small}-${item.subclass}-${item.detail}`,
+      domain: category || '일반 직업 (KNOW 세세분류)',
+      group: groupInfo ? groupInfo.label : `분류코드 ${item.major}-${item.middle}-${item.small}`,
+      codePath: `${item.major}-${item.middle}-${item.small}-${item.subclass}-${item.detail}`,
+      overview: buildGeneralJobOverview(item),
+      variants: nameVariants(item.name),
+      isNewJob: false
+    };
+  });
+
   const studyDomains = studyInfo && studyInfo.final_selected_jobs_by_domain
     ? Object.keys(studyInfo.final_selected_jobs_by_domain) : [];
   const jobDomains = [...new Set(jobData.map(job => job.domain))];
   domainOrder = [...studyDomains.filter(d => jobDomains.includes(d)), ...jobDomains.filter(d => !studyDomains.includes(d))];
 }
 
-// 입력한 직업명과 일치하는 직업 찾기
+// 입력한 직업명과 일치하는 직업 찾기 (신직업 41개 + 직업 세세분류 537개 통합 검색)
 function findJob(input) {
   const inputVariants = nameVariants(input).filter(v => v.length >= 2);
-  if (!inputVariants.length || !jobData.length) return { job: null, exact: false, candidates: [] };
+  const allJobs = [...jobData, ...occupationData];
+  if (!inputVariants.length || !allJobs.length) return { job: null, exact: false, candidates: [] };
 
-  const exact = jobData.find(job => job.variants.some(v => inputVariants.includes(v)));
-  if (exact) return { job: exact, exact: true, candidates: [] };
+  // 1. 신직업 41개에서 완전 일치 우선 검색
+  const exactNew = jobData.find(job => job.variants.some(v => inputVariants.includes(v)));
+  if (exactNew) return { job: exactNew, exact: true, candidates: [] };
 
-  const candidates = jobData.filter(job =>
+  // 2. 직업 세세분류 537개에서 완전 일치 검색
+  const exactGeneral = occupationData.find(job => job.variants.some(v => inputVariants.includes(v)));
+  if (exactGeneral) return { job: exactGeneral, exact: true, candidates: [] };
+
+  // 3. 부분 일치 후보 검색 (신직업 + 일반직업 통합)
+  const candidates = allJobs.filter(job =>
     job.variants.some(v => inputVariants.some(iv => v.includes(iv) || iv.includes(v)))
   );
   if (candidates.length === 1) return { job: candidates[0], exact: false, candidates };
@@ -485,7 +550,10 @@ function josa(word, withBatchim, withoutBatchim) {
   return hasBatchim ? withBatchim : withoutBatchim;
 }
 
-function sourceLabel() {
+function sourceLabel(job) {
+  if (job && !job.isNewJob) {
+    return `출처: 한국고용정보원 한국고용직업분류(KNOW) 세세분류 (${job.codePath})`;
+  }
   if (!studyInfo) return '출처: 2025 신직업 연구';
   const title = String(studyInfo.title || '').replace(/\([^)]*\)\s*$/, '').trim();
   const date = String(studyInfo.publication_date || '').replace('-', '.');
@@ -503,7 +571,7 @@ async function recommendJob() {
   navigateToStep('career');
 }
 
-/* ===== 희망 직업 입력: 신직업 자동완성 ===== */
+/* ===== 희망 직업 입력: 신직업 + 직업 세세분류 통합 자동완성 ===== */
 let suggestOpen = false;
 let suggestIndex = -1;
 
@@ -511,51 +579,56 @@ function getSuggestBox() { return document.getElementById('jobSuggest'); }
 
 function suggestOptions() { return [...getSuggestBox().querySelectorAll('.job-option')]; }
 
+function appendSuggestGroup(box, headingText, list) {
+  if (!list.length) return;
+  const heading = document.createElement('div');
+  heading.className = 'job-suggest-domain';
+  heading.textContent = headingText;
+  box.appendChild(heading);
+
+  list.forEach(job => {
+    const option = document.createElement('button');
+    option.type = 'button';
+    option.className = 'job-option';
+    option.setAttribute('role', 'option');
+    const title = document.createElement('strong');
+    title.textContent = job.name;
+    const sub = document.createElement('small');
+    sub.textContent = job.isNewJob ? `2025 신직업 · ${job.group}` : `${job.domain} · ${job.group}`;
+    option.append(title, sub);
+    option.addEventListener('click', () => selectJob(job.name));
+    box.appendChild(option);
+  });
+}
+
 function renderJobSuggest(query) {
   const box = getSuggestBox();
   if (!box) return;
   const keys = nameVariants(query);
-  const matches = jobData.filter(job => {
+
+  const filterFn = job => {
     if (!keys.length) return true;
     const haystacks = [...job.variants, normalizeName(job.group), normalizeName(job.domain)];
     return keys.some(k => haystacks.some(h => h.includes(k)));
-  });
+  };
+
+  const matchedNew = jobData.filter(filterFn);
+  const matchedGeneral = keys.length ? occupationData.filter(filterFn).slice(0, 30) : occupationData.slice(0, 15);
 
   box.innerHTML = '';
   suggestIndex = -1;
 
-  if (!jobData.length) {
+  if (!jobData.length && !occupationData.length) {
     box.innerHTML = '<div class="job-suggest-empty">직업 데이터를 불러오지 못했어요.</div>';
     return;
   }
-  if (!matches.length) {
-    box.innerHTML = '<div class="job-suggest-empty">일치하는 신직업이 없어요.</div>';
+  if (!matchedNew.length && !matchedGeneral.length) {
+    box.innerHTML = '<div class="job-suggest-empty">일치하는 직업이 없어요.</div>';
     return;
   }
 
-  domainOrder.forEach(domain => {
-    const inDomain = matches.filter(job => job.domain === domain);
-    if (!inDomain.length) return;
-
-    const heading = document.createElement('div');
-    heading.className = 'job-suggest-domain';
-    heading.textContent = `${domain} · ${inDomain.length}`;
-    box.appendChild(heading);
-
-    inDomain.forEach(job => {
-      const option = document.createElement('button');
-      option.type = 'button';
-      option.className = 'job-option';
-      option.setAttribute('role', 'option');
-      const title = document.createElement('strong');
-      title.textContent = job.name;
-      const sub = document.createElement('small');
-      sub.textContent = job.group;
-      option.append(title, sub);
-      option.addEventListener('click', () => selectJob(job.name));
-      box.appendChild(option);
-    });
-  });
+  appendSuggestGroup(box, `2025 신직업 · ${matchedNew.length}`, matchedNew);
+  appendSuggestGroup(box, `직업 세세분류 · ${matchedGeneral.length}${keys.length ? '' : ' (일부 표시)'}`, matchedGeneral);
 }
 
 function openJobSuggest(query) {
@@ -690,9 +763,11 @@ function setResultHeadVisible(visible) {
 function renderMatchedResult(job, ctx) {
   const taskHits = findOverlap(ctx.tasks, job.overview);
   const skillHits = findOverlap(ctx.skills, job.overview);
-  const source = sourceLabel();
+  const source = sourceLabel(job);
 
-  setText('resultCaption', `${job.domain} · ${job.group}`);
+  setText('resultCaption', job.isNewJob
+    ? `2025 신직업 · ${job.domain} · ${job.group}`
+    : `직업 세세분류 · ${job.domain} · ${job.group}`);
 
   // 1. 주요 업무
   if (taskHits.length >= 2) setStatus('cardTaskStatus', 'match', '일치');
@@ -714,7 +789,9 @@ function renderMatchedResult(job, ctx) {
   if (ctx.exact) setStatus('cardClassStatus', 'match', '일치');
   else setStatus('cardClassStatus', 'check', '추가 확인 필요');
   setText('cardClassUser', ctx.career);
-  setText('cardClassActual', `${job.domain} > ${job.group} > ${job.name}`);
+  setText('cardClassActual', job.isNewJob
+    ? `${job.domain} > ${job.group} > ${job.name}`
+    : `${job.domain} > ${job.group} > ${job.name} (코드 ${job.codePath})`);
 
   document.querySelectorAll('#matchedResult .source').forEach(elem => { elem.textContent = source; });
 
@@ -723,14 +800,19 @@ function renderMatchedResult(job, ctx) {
   if (taskHits.length >= 2) verdict = '예상한 업무가 실제 직무와 꽤 맞닿아 있어요.';
   else if (taskHits.length === 1) verdict = '예상한 업무가 일부만 겹쳐요. 직무개요를 읽으며 빠진 업무를 찾아보세요.';
   else verdict = '예상한 업무와 직무개요가 거의 겹치지 않아요. 어떤 일을 하는 직업인지 직무개요를 다시 확인해 보세요.';
+
+  const jobKindText = job.isNewJob
+    ? `${job.domain}의 '${job.group}' 직군에 속하는 2025 신직업이에요.`
+    : `${job.domain} 분야('${job.group}', 분류코드 ${job.codePath})에 속하는 직업이에요.`;
+
   setRichText('resultReport', [
     { strong: job.name },
-    `${josa(job.name, '은', '는')} ${job.domain}의 '${job.group}' 직군에 속하는 신직업이에요. 입력하신 업무에서 `,
+    `${josa(job.name, '은', '는')} ${jobKindText} 입력하신 업무에서 `,
     { strong: `${taskHits.length}개 키워드` },
     `가 직무개요와 겹쳐요. ${verdict}`
   ]);
 
-  const trends = (studyInfo && studyInfo.key_characteristics_of_new_jobs) || [];
+  const trends = job.isNewJob ? ((studyInfo && studyInfo.key_characteristics_of_new_jobs) || []) : [];
   const trendList = document.getElementById('trendList');
   trendList.textContent = '';
   trends.forEach(text => {
@@ -742,10 +824,11 @@ function renderMatchedResult(job, ctx) {
 
   // 추가 탐색 질문 + 관련 직업
   setText('resultQuestion', `'${job.group}' 분야에서 ${job.name}${josa(job.name, '이', '가')} 하는 일 중, 내가 가장 해보고 싶은 업무는 무엇인가요?`);
-  let related = jobData.filter(item => item.group === job.group && item.id !== job.id);
+  const allJobs = [...jobData, ...occupationData];
+  let related = allJobs.filter(item => item.group === job.group && item.id !== job.id).slice(0, 6);
   let relatedLabel = '같은 직군의 다른 직업';
   if (!related.length) {
-    related = jobData.filter(item => item.domain === job.domain && item.id !== job.id).slice(0, 3);
+    related = allJobs.filter(item => item.domain === job.domain && item.id !== job.id).slice(0, 6);
     relatedLabel = '같은 영역의 다른 직업';
   }
   const relatedList = document.getElementById('relatedList');
@@ -759,38 +842,29 @@ function renderMatchedResult(job, ctx) {
   document.getElementById('missingResult').hidden = true;
 }
 
-function renderMissingResult(career, candidates, generalOccupation = null) {
+function renderMissingResult(career, candidates) {
   const suggest = document.getElementById('missingSuggest');
   suggest.textContent = '';
 
   const generalPanel = document.getElementById('generalOccupationResult');
-  if (generalPanel) generalPanel.hidden = !generalOccupation;
-  if (generalOccupation) {
-    setText('missingTitle', '직업 분류 정보를 찾았어요');
-    setText('missingText', `'${career}' 직업은 직업 세세분류 데이터에서 확인했어요. 다만 이 데이터에는 업무·필요 역량 설명이 없어 키워드 비교는 제공되지 않습니다.`);
-    setText('generalOccupationNote', '첫 번째 파일에 수록된 직업명과 분류 코드를 표시합니다. 업무·역량의 실제 비교에는 별도의 직무정보가 필요합니다.');
-    setText('occupationMajor', generalOccupation.major);
-    setText('occupationMiddle', generalOccupation.middle);
-    setText('occupationSmall', generalOccupation.small);
-    setText('occupationSub', generalOccupation.subclass);
-    setText('occupationDetail', generalOccupation.detail);
-    setText('resultCaption', '직업 세세분류 데이터 기준');
-  } else if (candidates.length) {
+  if (generalPanel) generalPanel.hidden = true;
+
+  if (candidates.length) {
     setText('missingTitle', '혹시 이런 직업을 찾으셨나요?');
-    setText('missingText', `'${career}'${josa(career, '과', '와')} 비슷한 신직업이 여러 개 있어요. 하나를 고르면 입력하신 내용으로 바로 비교해요.`);
-    candidates.slice(0, 8).forEach(job => suggest.appendChild(makeChip(job.name, () => compareWith(job.name))));
+    setText('missingText', `'${career}'${josa(career, '과', '와')} 비슷한 직업이 여러 개 있어요. 하나를 고르면 입력하신 내용으로 바로 비교해요.`);
+    candidates.slice(0, 10).forEach(job => suggest.appendChild(makeChip(job.name, () => compareWith(job.name))));
     setText('resultCaption', '');
   } else {
-    const total = (studyInfo && studyInfo.final_selected_jobs_count) || jobData.length;
+    const totalCount = jobData.length + occupationData.length;
     setText('missingTitle', '실제 직업정보를 찾을 수 없어요');
-    setText('missingText', jobData.length
-      ? `입력하신 직업은 2025 신직업 ${total}개 목록에 없어요. 아래 직업 중에서 골라 비교해 보세요.`
+    setText('missingText', totalCount
+      ? `입력하신 직업은 등록된 직업 목록(${totalCount}개)에 없어요. 아래 직업 중에서 골라 비교해 보세요.`
       : '직업 데이터를 불러오지 못했어요. 파일 위치(data 폴더)를 확인해 주세요.');
     domainOrder.forEach(domain => {
       const first = jobData.find(job => job.domain === domain);
       if (first) suggest.appendChild(makeChip(first.name, () => compareWith(first.name)));
     });
-    setText('resultCaption', '현재 해당 직업의 예시 데이터가 마련되어 있지 않습니다.');
+    setText('resultCaption', '현재 해당 직업의 데이터가 마련되어 있지 않습니다.');
   }
 
   document.getElementById('favoriteButton').hidden = true;
@@ -829,8 +903,7 @@ async function processComparison() {
 
   await jobDataReady;
   const { job, exact, candidates } = findJob(career);
-  const generalOccupation = job ? null : findGeneralOccupation(career);
-  const careerName = job ? job.name : (generalOccupation ? generalOccupation.name : career);
+  const careerName = job ? job.name : career;
 
   document.getElementById('resultCareer').textContent = careerName;
   document.getElementById('outTasks').textContent = tasks;
@@ -838,7 +911,7 @@ async function processComparison() {
   setResultHeadVisible(true);
 
   if (job) renderMatchedResult(job, { career, tasks, skills, exact });
-  else renderMissingResult(career, candidates, generalOccupation);
+  else renderMissingResult(career, candidates);
 
   isResultAvailable = true;
   saveComparisonRecord({ career: careerName, tasks, skills, date: new Date().toISOString() });
@@ -876,7 +949,7 @@ function storageKeyForUser(key) {
 function readSavedList(key) {
   try {
     const scopedKey = storageKeyForUser(key);
-    return JSON.parse(localStorage.getItem(scopedKey) || (window.jinrofitUser ? '[]' : '[]'));
+    return JSON.parse(localStorage.getItem(scopedKey) || '[]');
   } catch (error) {
     return [];
   }
@@ -952,7 +1025,7 @@ function renderMyPage() {
 
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, char => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    '&': '&', '<': '<', '>': '>', '"': '"', "'": '''
   }[char]));
 }
 
@@ -979,19 +1052,4 @@ function removeFavorite(career) {
   writeSavedList('jinrofitFavoriteJobs', favorites);
   renderMyPage();
   updateFavoriteButton();
-}
-
-function openLogin() {
-  const modal = document.getElementById('loginModal');
-  if (modal) modal.hidden = false;
-}
-
-function closeLogin() {
-  const modal = document.getElementById('loginModal');
-  if (modal) modal.hidden = true;
-}
-
-function showLoginNotice() {
-  const notice = document.getElementById('loginNotice');
-  if (notice) notice.textContent = '로그인 UI 미리보기입니다. 실제 계정 인증 및 서버 연동은 아직 구현되지 않았습니다.';
 }
